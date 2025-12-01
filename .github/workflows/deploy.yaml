@@ -46,11 +46,4 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/spentiva-app-server:latest
             docker stop spentiva-app-server || true
             docker rm spentiva-app-server || true
-            docker run -d --name spentiva-app-server \
-              -p 8002:8002 \
-              -e PORT=8002 \
-              -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-              -e MONGODB_URL=${{ secrets.MONGODB_URL }} \
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-              --restart=always \
-              ${{ secrets.DOCKERHUB_USERNAME }}/spentiva-app-server:latest
+            docker run -d --name spentiva-app-server -p 8002:8002 -e PORT=8002 -e OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}" -e MONGODB_URL="${{ secrets.MONGODB_URL }}" -e JWT_SECRET="${{ secrets.JWT_SECRET }}" --restart=always ${{ secrets.DOCKERHUB_USERNAME }}/spentiva-app-server:latest
