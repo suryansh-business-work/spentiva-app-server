@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from "../config/categories";
 import { ParsedExpense } from "../types";
 
-const openai = process.env.OPENAI_API_KEY 
+const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
@@ -68,7 +68,7 @@ If you cannot parse the message, respond with:
       }
 
       const parsed = JSON.parse(response);
-      
+
       if (parsed.error) {
         return parsed;
       }
