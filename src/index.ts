@@ -28,8 +28,32 @@ const PORT = config.PORT;
 // Initialize database connection
 db(config.DBURL);
 
-// Middleware
-app.use(cors());
+// CORS Configuration
+const allowedOrigins = [
+  'https://app.spentiva.com',
+  'http://localhost:5173', // Local development
+  'http://localhost:3000', // Alternative local port
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(null, false);
+    }
+  },
+  credentials: true, // Allow cookies and authorization headers
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400, // 24 hours
+}));
+
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -415,9 +439,9 @@ app.post("/api/parse-expense", authenticateToken, async (req: any, res) => {
     let trackerSnapshot = null;
     if (req.user?.userId && trackerId) {
       try {
-        const tracker = await TrackerModel.findOne({ 
-          _id: trackerId, 
-          userId: req.user.userId 
+        const tracker = await TrackerModel.findOne({
+          _id: trackerId,
+          userId: req.user.userId
         });
 
         if (tracker) {
@@ -437,7 +461,7 @@ app.post("/api/parse-expense", authenticateToken, async (req: any, res) => {
       try {
         const { encode } = await import('gpt-tokenizer');
         const userTokens = encode(message).length;
-        
+
         const { logUsage } = await import('./utils/usageLogger');
         await logUsage(
           req.user.userId,
@@ -461,7 +485,7 @@ app.post("/api/parse-expense", authenticateToken, async (req: any, res) => {
         const responseText = `Parsed expense: ₹${parsed.amount} for ${parsed.subcategory} via ${parsed.paymentMethod}`;
         const { encode } = await import('gpt-tokenizer');
         const aiTokens = encode(responseText).length;
-        
+
         const { logUsage } = await import('./utils/usageLogger');
         await logUsage(
           req.user.userId,
@@ -500,7 +524,7 @@ app.post("/api/expenses", async (req, res) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     let userId;
-    
+
     if (token) {
       try {
         const decoded: any = jwt.verify(token, JWT_SECRET);
@@ -549,7 +573,7 @@ app.get("/api/expenses", async (req, res) => {
   try {
     const { trackerId } = req.query;
     const query = trackerId ? { trackerId } : {};
-    
+
     const expenses = await ExpenseModel.find(query)
       .sort({ timestamp: -1 })
       .limit(100);
@@ -651,18 +675,18 @@ app.post("/api/chat", authenticateToken, async (req: any, res) => {
     let trackerSnapshot = null;
     if (req.user?.userId && trackerId) {
       try {
-        const tracker = await TrackerModel.findOne({ 
-          _id: trackerId, 
-          userId: req.user.userId 
+        const tracker = await TrackerModel.findOne({
+          _id: trackerId,
+          userId: req.user.userId
         });
 
         if (tracker) {
           const { createTrackerSnapshot, logUsage } = await import('./utils/usageLogger');
           const { encode } = await import('gpt-tokenizer');
-          
+
           trackerSnapshot = createTrackerSnapshot(tracker);
           const userTokens = encode(message).length;
-          
+
           await logUsage(
             req.user.userId,
             trackerSnapshot,
@@ -683,9 +707,9 @@ app.post("/api/chat", authenticateToken, async (req: any, res) => {
       try {
         const { logUsage } = await import('./utils/usageLogger');
         const { encode } = await import('gpt-tokenizer');
-        
+
         const aiTokens = encode(response).length;
-        
+
         await logUsage(
           req.user.userId,
           trackerSnapshot,
@@ -709,9 +733,9 @@ app.post("/api/chat", authenticateToken, async (req: any, res) => {
 app.get("/api/analytics/summary", async (req, res) => {
   try {
     const { filter, customStart, customEnd, categoryId, trackerId } = req.query;
-    
+
     let dateRange = { startDate: new Date(0), endDate: new Date() };
-    
+
     if (filter) {
       dateRange = AnalyticsService.getDateRange(
         filter as string,
@@ -719,22 +743,22 @@ app.get("/api/analytics/summary", async (req, res) => {
         customEnd as string
       );
     }
-    
+
     const query: any = {
       startDate: dateRange.startDate,
       endDate: dateRange.endDate
     };
-    
+
     if (categoryId) {
       query.categoryId = categoryId;
     }
-    
+
     if (trackerId) {
       query.trackerId = trackerId;
     }
-    
+
     const stats = await AnalyticsService.getSummaryStats(query);
-    
+
     res.json({
       stats,
       filter: filter || "all",
@@ -749,9 +773,9 @@ app.get("/api/analytics/summary", async (req, res) => {
 app.get("/api/analytics/by-category", async (req, res) => {
   try {
     const { filter, customStart, customEnd, trackerId } = req.query;
-    
+
     let dateRange = { startDate: new Date(0), endDate: new Date() };
-    
+
     if (filter) {
       dateRange = AnalyticsService.getDateRange(
         filter as string,
@@ -759,18 +783,18 @@ app.get("/api/analytics/by-category", async (req, res) => {
         customEnd as string
       );
     }
-    
+
     const query: any = {
       startDate: dateRange.startDate,
       endDate: dateRange.endDate
     };
-    
+
     if (trackerId) {
       query.trackerId = trackerId;
     }
-    
+
     const data = await AnalyticsService.getExpensesByCategory(query);
-    
+
     res.json({ data, filter: filter || "all", dateRange });
   } catch (error) {
     console.error("Error fetching category analytics:", error);
@@ -782,9 +806,9 @@ app.get("/api/analytics/by-month", async (req, res) => {
   try {
     const { year, trackerId } = req.query;
     const targetYear = year ? parseInt(year as string) : undefined;
-    
+
     const data = await AnalyticsService.getExpensesByMonth(targetYear, trackerId as string | undefined);
-    
+
     res.json({ data, year: targetYear || new Date().getFullYear() });
   } catch (error) {
     console.error("Error fetching monthly analytics:", error);
@@ -799,13 +823,13 @@ app.get("/api/analytics/total", async (req, res) => {
       startDate: new Date(0),
       endDate: new Date()
     };
-    
+
     if (trackerId) {
       query.trackerId = trackerId;
     }
-    
+
     const total = await AnalyticsService.getTotalExpenses(query);
-    
+
     res.json({ total });
   } catch (error) {
     console.error("Error fetching total:", error);

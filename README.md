@@ -1,87 +1,101 @@
+# Spentiva - Expense Tracker Backend Server
 
-- **🤖 AI-Powered Expense Parsing**: Natural language processing for expense entries using OpenAI
-- **🔐 Authentication System**: Phone-based OTP authentication with JWT tokens
-- **📊 Advanced Analytics**: Comprehensive expense analysis by category, month, and custom date ranges
-- **👤 User Management**: Profile management with email verification and photo uploads
-- **📈 Usage Tracking**: Token-based usage monitoring for AI interactions
-- **📄 Report Generation**: Detailed expense reports with filtering capabilities
-- **🎯 Tracker System**: Organize expenses with multiple trackers
-- **💬 AI Chat Assistant**: Interactive chat for expense-related queries
-- **🔄 RESTful API**: Well-structured API endpoints with proper authentication
+> A powerful AI-powered expense tracking backend built with Node.js, Express, TypeScript, and MongoDB
+
+[![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-8.x-green.svg)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+
+## 📑 Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#️-tech-stack)
+- [Installation](#-installation)
+- [Docker Deployment](#-docker-deployment)
+- [API Documentation](#-api-documentation)
+- [Testing](#-testing)
+- [CI/CD Pipeline](#-cicd-pipeline)
+- [Environment Variables](#-environment-variables)
+- [Troubleshooting](#-troubleshooting)
+
+## 🚀 Overview
+
+Spentiva is a modern expense tracking server that leverages OpenAI's GPT models to intelligently parse natural language expense entries. The backend provides a comprehensive API for managing expenses, user authentication, analytics, and real-time usage tracking.
+
+## ✨ Features
+
+- **🤖 AI-Powered Expense Parsing** - Natural language processing using OpenAI GPT-4
+- **🔐 Authentication System** - Phone-based OTP authentication with JWT tokens
+- **📊 Advanced Analytics** - Comprehensive expense analysis by category, month, and date ranges
+- **👤 User Management** - Profile management with email verification and photo uploads
+- **📈 Usage Tracking** - Token-based usage monitoring for AI interactions
+- **📄 Report Generation** - Detailed expense reports with filtering capabilities
+- **🎯 Tracker System** - Organize expenses with multiple trackers
+- **💬 AI Chat Assistant** - Interactive chat for expense-related queries
 
 ## 🛠️ Tech Stack
 
-- **Runtime**: Node.js 20
-- **Framework**: Express.js
-- **Language**: TypeScript
-- **Database**: MongoDB (Mongoose ODM)
-- **Authentication**: JWT + OTP
-- **AI Integration**: OpenAI GPT-4
-- **File Uploads**: Multer
-- **Email**: Nodemailer + MJML templates
-- **Testing**: Mocha, Chai, Supertest
+- **Runtime**: Node.js 20 | **Framework**: Express.js | **Language**: TypeScript
+- **Database**: MongoDB (Mongoose ODM) | **AI**: OpenAI GPT-4
+- **Authentication**: JWT + OTP | **File Uploads**: Multer
+- **Email**: Nodemailer + MJML | **Testing**: Mocha, Chai, Supertest
 - **DevOps**: Docker, GitHub Actions
 
-## 📋 Prerequisites
+## 🔧 Installation
 
+### Prerequisites
 - Node.js 20.x or higher
 - MongoDB 8.x or higher
 - OpenAI API Key
 - npm or yarn
 
-## 🔧 Installation
-
-### 1. Clone the repository
+### Quick Start
 
 ```bash
+# 1. Clone repository
 git clone <repository-url>
 cd spentiva-app-server
-```
 
-### 2. Install dependencies
-
-```bash
+# 2. Install dependencies
 npm install
-```
 
-### 3. Environment setup
-
-Create a `.env` file in the root directory:
-
-```env
+# 3. Create .env file
+cat > .env << EOF
 PORT=8002
 OPENAI_API_KEY=your_openai_api_key_here
 MONGODB_URL=mongodb+srv://username:password@cluster.mongodb.net/expenses?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_here
-```
+EOF
 
-### 4. Run the development server
-
-```bash
+# 4. Run development server
 npm run dev
 ```
 
-The server will start on `http://localhost:8002`
+Server starts at `http://localhost:8002`
 
 ## 🐳 Docker Deployment
 
-### Build Docker image
+### Local Build & Run
 
 ```bash
+# Build image
 docker build -t spentiva-app-server .
-```
 
-### Run Docker container
-
-```bash
+# Run container
 docker run -d \
   --name spentiva-app-server \
   -p 8002:8002 \
+  -e PORT=8002 \
+  -e OPENAI_API_KEY=your_key \
+  -e MONGODB_URL=your_mongodb_url \
+  -e JWT_SECRET=your_secret \
   --restart=always \
   spentiva-app-server:latest
 ```
 
-### Docker Compose (Optional)
+### Docker Compose
 
 ```yaml
 version: '3.8'
@@ -105,19 +119,18 @@ services:
 http://localhost:8002/api
 ```
 
-### Authentication
-
-All authenticated endpoints require a Bearer token in the Authorization header:
+### Authentication Header
 ```
 Authorization: Bearer <your_jwt_token>
 ```
 
-### Endpoints
+### API Endpoints
 
-#### 🔐 Authentication
+<details>
+<summary><b>🔐 Authentication</b></summary>
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
 | POST | `/auth/send-otp` | Send OTP to phone number | ❌ |
 | POST | `/auth/verify-otp` | Verify OTP and login/signup | ❌ |
 | GET | `/auth/me` | Get current user profile | ✅ |
@@ -126,116 +139,89 @@ Authorization: Bearer <your_jwt_token>
 | POST | `/auth/send-email-otp` | Send email verification OTP | ✅ |
 | POST | `/auth/verify-email-otp` | Verify email OTP | ✅ |
 
-#### 💰 Expenses
+</details>
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
+<details>
+<summary><b>💰 Expenses</b></summary>
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
 | POST | `/expenses` | Create new expense | Optional |
 | GET | `/expenses` | Get all expenses | ❌ |
 | PUT | `/expenses/:id` | Update expense | ❌ |
 | DELETE | `/expenses/:id` | Delete expense | ❌ |
 | POST | `/parse-expense` | Parse natural language expense | ✅ |
 
-#### 📊 Analytics
+</details>
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
+<details>
+<summary><b>📊 Analytics</b></summary>
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
 | GET | `/analytics/summary` | Get summary statistics | ❌ |
 | GET | `/analytics/by-category` | Get expenses by category | ❌ |
 | GET | `/analytics/by-month` | Get monthly expense trends | ❌ |
 | GET | `/analytics/total` | Get total expenses | ❌ |
 
-#### 📈 Trackers
+</details>
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
+<details>
+<summary><b>📈 Trackers & 💬 Chat</b></summary>
+
+**Trackers**
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
 | POST | `/trackers` | Create new tracker | ✅ |
 | GET | `/trackers` | Get all user trackers | ✅ |
 | PUT | `/trackers/:id` | Update tracker | ✅ |
 | DELETE | `/trackers/:id` | Delete tracker | ✅ |
 
-#### 💬 Chat & AI
+**Chat & AI**
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
 | POST | `/chat` | Chat with AI assistant | ✅ |
-| POST | `/parse-expense` | Parse expense with AI | ✅ |
-
-#### 📄 Reports & Usage
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
 | GET | `/reports/email` | Generate email report | ✅ |
 | GET | `/usage/statistics` | Get usage statistics | ✅ |
-
-#### 🏥 Health Check
-
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
 | GET | `/health` | Server health status | ❌ |
+
+</details>
 
 ### Example Requests
 
-#### Send OTP
 ```bash
+# Send OTP
 curl -X POST http://localhost:8002/api/auth/send-otp \
   -H "Content-Type: application/json" \
   -d '{"phone": "+1234567890"}'
-```
 
-#### Verify OTP & Login
-```bash
-curl -X POST http://localhost:8002/api/auth/verify-otp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "phone": "+1234567890",
-    "otp": "123456",
-    "name": "John Doe"
-  }'
-```
-
-#### Parse Expense (AI)
-```bash
+# Parse Expense (AI)
 curl -X POST http://localhost:8002/api/parse-expense \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_token>" \
-  -d '{
-    "message": "Spent 500 rupees on groceries via UPI",
-    "trackerId": "tracker_id_here"
-  }'
-```
+  -H "Authorization: Bearer <token>" \
+  -d '{"message": "Spent 500 rupees on groceries via UPI", "trackerId": "tracker_id"}'
 
-#### Create Expense
-```bash
+# Create Expense
 curl -X POST http://localhost:8002/api/expenses \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <your_token>" \
   -d '{
     "amount": 500,
     "category": "Food & Dining",
     "subcategory": "Groceries",
     "categoryId": "food",
     "paymentMethod": "UPI",
-    "description": "Monthly groceries",
-    "trackerId": "tracker_id_here"
+    "trackerId": "tracker_id"
   }'
 ```
 
 ## 🧪 Testing
 
-### Run all tests
 ```bash
-npm test
-```
-
-### Run tests in watch mode
-```bash
-npm run test:watch
-```
-
-### Generate coverage report
-```bash
-npm run test:coverage
+npm test                  # Run all tests
+npm run test:watch        # Run tests in watch mode
+npm run test:coverage     # Generate coverage report
 ```
 
 ## 📁 Project Structure
@@ -243,66 +229,52 @@ npm run test:coverage
 ```
 spentiva-app-server/
 ├── src/
-│   ├── config/           # Configuration files (DB, environment, categories)
+│   ├── config/           # DB, environment, categories config
 │   ├── controllers/      # Route controllers
 │   ├── middleware/       # Custom middleware
-│   ├── models/           # Mongoose models
-│   │   ├── User.ts
-│   │   ├── Expense.ts
-│   │   ├── Tracker.ts
-│   │   ├── OTP.ts
-│   │   ├── Category.ts
-│   │   ├── Usage.ts
-│   │   ├── UsageLog.ts
-│   │   └── Message.ts
-│   ├── routes/           # Route definitions
-│   ├── services/         # Business logic services
-│   │   ├── expenseParser.ts    # AI expense parsing
-│   │   └── analyticsService.ts # Analytics calculations
+│   ├── models/           # Mongoose models (User, Expense, Tracker, OTP, etc.)
+│   ├── routes/           # API route definitions
+│   ├── services/         # Business logic (AI parsing, analytics)
 │   ├── templates/        # Email templates (MJML)
-│   ├── types/            # TypeScript type definitions
-│   ├── utils/            # Utility functions
-│   └── index.ts          # Application entry point
-├── test/                 # Test files
-├── uploads/              # User uploaded files
-├── dist/                 # Compiled JavaScript
-├── .github/
-│   └── workflows/
-│       └── deploy.yaml   # CI/CD pipeline
-├── Dockerfile            # Docker configuration
-├── tsconfig.json         # TypeScript configuration
-├── .mocharc.json         # Mocha test configuration
-└── package.json          # Project dependencies
+│   ├── types/            # TypeScript definitions
+│   ├── utils/            # Helper functions
+│   └── index.ts          # Entry point
+├── test/                 # Test suite
+├── .github/workflows/    # CI/CD pipeline
+├── Dockerfile            # Docker config
+└── package.json          # Dependencies
 ```
 
 ## 🔄 Available Scripts
 
 | Script | Description |
 |--------|-------------|
-| `npm run dev` | Start development server with hot reload |
+| `npm run dev` | Development server with hot reload |
 | `npm run build` | Compile TypeScript to JavaScript |
 | `npm start` | Start production server |
 | `npm test` | Run test suite |
-| `npm run test:watch` | Run tests in watch mode |
-| `npm run test:coverage` | Generate test coverage report |
-| `npm run migrate:usage` | Run usage data migration script |
+| `npm run migrate:usage` | Run usage data migration |
 
 ## 🚀 CI/CD Pipeline
 
-The project uses GitHub Actions for automated deployment on every push to the `main` branch.
+The project uses **GitHub Actions** for automated deployment on every push to the `main` branch.
 
 ### Deployment Workflow
 
-1. **Build**: Creates Docker image with multi-stage build
-2. **Test**: Verifies Node.js and npm versions in the image
-3. **Push**: Uploads image to Docker Hub
-4. **Deploy**: SSH deployment to production server with environment variables
+1. **Build** - Creates Docker image with multi-stage build
+2. **Test** - Verifies Node.js and npm versions in the image
+3. **Push** - Uploads image to Docker Hub
+4. **Deploy** - SSH deployment to production server with environment variables
 
 ### 🔐 GitHub Secrets Setup
 
 #### Where to Add Secrets
 
 **Use Repository Secrets** (NOT Environment secrets)
+
+```
+GitHub Repository → Settings → Secrets and variables → Actions → Repository secrets
+```
 
 1. Go to your GitHub repository
 2. Click **Settings** → **Secrets and variables** → **Actions**
@@ -314,19 +286,19 @@ The project uses GitHub Actions for automated deployment on every push to the `m
 
 | Secret Name | Description | How to Get |
 |-------------|-------------|------------|
-| `OPENAI_API_KEY` | OpenAI API key for AI expense parsing | Get from [OpenAI Platform](https://platform.openai.com/api-keys) |
-| `MONGODB_URL` | MongoDB connection string | Copy from MongoDB Atlas or your `.env` file |
+| `OPENAI_API_KEY` | OpenAI API key for AI expense parsing | [OpenAI Platform](https://platform.openai.com/api-keys) |
+| `MONGODB_URL` | MongoDB connection string | Copy from MongoDB Atlas or `.env` file |
 | `JWT_SECRET` | Secret key for JWT token signing | Generate using command below ⬇️ |
-| `DOCKERHUB_USERNAME` | Docker Hub username | Your Docker Hub account username |
-| `DOCKERHUB_TOKEN` | Docker Hub access token | Generate from [Docker Hub Settings](https://hub.docker.com/settings/security) |
-| `SSH_HOST` | Production server IP/domain | Your server's IP address or domain |
+| `DOCKERHUB_USERNAME` | Docker Hub username | Your Docker Hub account |
+| `DOCKERHUB_TOKEN` | Docker Hub access token | [Docker Hub Settings](https://hub.docker.com/settings/security) |
+| `SSH_HOST` | Production server IP/domain | Your server's IP address |
 | `SSH_USER` | SSH username | Usually `root` or `ubuntu` |
-| `SSH_KEY` | SSH private key | Your server's private SSH key (entire content) |
+| `SSH_KEY` | SSH private key | Entire private key content |
 | `SSH_PORT` | SSH port | Usually `22` |
 
 #### Generate JWT Secret
 
-Run this command in your terminal to generate a secure random JWT secret:
+Run this command to generate a secure random JWT secret:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
@@ -336,7 +308,7 @@ Copy the output and add it to GitHub as `JWT_SECRET`.
 
 #### How Secrets Are Used
 
-The deployment workflow passes these secrets as environment variables to your Docker container:
+The deployment workflow passes secrets as environment variables to your Docker container:
 
 ```yaml
 docker run -d --name spentiva-app-server \
@@ -362,53 +334,6 @@ docker run -d --name spentiva-app-server \
 - [ ] Add `SSH_PORT` to GitHub Repository Secrets
 - [ ] Push to `main` branch to trigger deployment
 
-## 🔒 Security Features
-
-- JWT-based authentication with 30-day expiration
-- OTP verification for phone and email
-- File upload validation and size limits (5MB)
-- CORS enabled for cross-origin requests
-- Environment variable protection
-- Password hashing with bcrypt
-- Request authentication middleware
-
-## 📊 Database Models
-
-### User
-- Phone number (unique)
-- Name
-- Email (optional, with verification)
-- Profile photo
-- Account type (personal/business)
-
-### Expense
-- Amount
-- Category & Subcategory
-- Payment method
-- Description
-- Timestamp
-- Tracker reference
-- User reference
-
-### Tracker
-- Name
-- Icon
-- Color
-- Budget
-- User reference
-
-### OTP
-- Identifier (phone/email)
-- OTP code
-- Type (phone/email)
-- Expiration
-- Verification status
-
-### Usage & UsageLog
-- Token tracking for AI usage
-- Message history
-- Tracker snapshots
-
 ## 🌍 Environment Variables
 
 | Variable | Description | Required | Default |
@@ -418,23 +343,49 @@ docker run -d --name spentiva-app-server \
 | `OPENAI_API_KEY` | OpenAI API key | Yes | - |
 | `JWT_SECRET` | JWT signing secret | Yes | - |
 
+## 🔒 Security Features
+
+- ✅ JWT-based authentication with 30-day expiration
+- ✅ OTP verification for phone and email
+- ✅ File upload validation and size limits (5MB)
+- ✅ CORS enabled for cross-origin requests
+- ✅ Environment variable protection
+- ✅ Password hashing with bcrypt
+- ✅ Request authentication middleware
+
+## 📊 Database Models
+
+**User** - Phone, Name, Email, Profile Photo, Account Type  
+**Expense** - Amount, Category, Payment Method, Description, Timestamp  
+**Tracker** - Name, Icon, Color, Budget  
+**OTP** - Identifier, Code, Type, Expiration  
+**Usage & UsageLog** - Token tracking, Message history
+
 ## 🐛 Troubleshooting
 
-### MongoDB Connection Issues
-```bash
-# Check MongoDB connection string format
-# Ensure IP whitelist includes your server IP
-# Verify MongoDB Atlas cluster is running
-```
+<details>
+<summary><b>MongoDB Connection Issues</b></summary>
 
-### OpenAI API Errors
-```bash
-# Verify API key is valid
-# Check rate limits and quotas
-# Ensure sufficient credits
-```
+- Check MongoDB connection string format
+- Ensure IP whitelist includes your server IP or `0.0.0.0/0`
+- Verify MongoDB Atlas cluster is running
+- Test connection: `mongosh <your_connection_string>`
 
-### Docker Issues
+</details>
+
+<details>
+<summary><b>OpenAI API Errors</b></summary>
+
+- Verify API key is valid and starts with `sk-`
+- Check rate limits and quotas in OpenAI dashboard
+- Ensure sufficient credits in your account
+- Test with: `curl https://api.openai.com/v1/models -H "Authorization: Bearer <key>"`
+
+</details>
+
+<details>
+<summary><b>Docker Issues</b></summary>
+
 ```bash
 # Check if port 8002 is available
 docker ps | grep 8002
@@ -444,7 +395,22 @@ docker logs spentiva-app-server
 
 # Restart container
 docker restart spentiva-app-server
+
+# Check running containers
+docker ps -a
 ```
+
+</details>
+
+<details>
+<summary><b>GitHub Actions Deployment Fails</b></summary>
+
+- Verify all 9 secrets are added to Repository Secrets
+- Check secret names match exactly (case-sensitive)
+- View workflow logs in Actions tab
+- Test SSH connection manually: `ssh -i key user@host -p port`
+
+</details>
 
 ## 🤝 Contributing
 
