@@ -80,7 +80,8 @@ const compileMjmlTemplate = (templatePath: string, variables: Record<string, any
 
     // Replace variables in template
     Object.keys(variables).forEach(key => {
-      const regex = new RegExp(`{{${key}}}`, 'g');
+      // Match both {{ key }} (with spaces) and {{key}} (without spaces)
+      const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
       mjmlContent = mjmlContent.replace(regex, variables[key]);
     });
 
