@@ -17,7 +17,7 @@ export const getAllMessagesController = async (req: any, res: Response) => {
     const messages = await MessageService.getAllMessages({
       userId,
       trackerId: trackerId as string,
-      limit: limit ? parseInt(limit as string) : undefined
+      limit: limit ? parseInt(limit as string) : undefined,
     });
 
     // Format messages to show content preview
@@ -27,7 +27,7 @@ export const getAllMessagesController = async (req: any, res: Response) => {
       role: msg.role,
       tokenCount: msg.tokenCount,
       timestamp: msg.timestamp,
-      contentPreview: msg.content.substring(0, 50)
+      contentPreview: msg.content.substring(0, 50),
     }));
 
     return successResponse(res, { messages: formattedMessages }, 'Messages retrieved successfully');
@@ -72,14 +72,14 @@ export const createMessageController = async (req: any, res: Response) => {
       role,
       content,
       tokenCount,
-      timestamp
+      timestamp,
     });
 
     res.status(201).json({
       message: 'Message created successfully',
       data: { message },
       status: 'success',
-      statusCode: 201
+      statusCode: 201,
     });
     return;
   } catch (error: any) {

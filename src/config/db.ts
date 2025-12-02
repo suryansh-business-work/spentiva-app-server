@@ -5,7 +5,7 @@ export default function db(dbUrl: string) {
     .then(() => {
       console.log('Database Connected');
     })
-    .catch((error) => {
+    .catch(error => {
       console.log('Error while connecting to the database', error);
     });
 }

@@ -7,7 +7,7 @@ function db(dbUrl) {
         .then(() => {
         console.log('Database Connected');
     })
-        .catch((error) => {
+        .catch(error => {
         console.log('Error while connecting to the database', error);
     });
 }

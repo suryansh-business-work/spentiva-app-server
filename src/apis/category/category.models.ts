@@ -13,37 +13,40 @@ export interface ICategory extends Document {
   updatedAt: Date;
 }
 
-const SubCategorySchema = new Schema({
-  id: {
-    type: String,
-    required: true
+const SubCategorySchema = new Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
-  name: {
-    type: String,
-    required: true,
-    trim: true
-  }
-}, { _id: false });
+  { _id: false }
+);
 
 const CategorySchema: Schema = new Schema(
   {
     trackerId: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     subcategories: {
       type: [SubCategorySchema],
-      default: []
-    }
+      default: [],
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

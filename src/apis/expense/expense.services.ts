@@ -23,9 +23,7 @@ export class ExpenseService {
     if (trackerId) query.trackerId = trackerId;
     if (userId) query.userId = userId;
 
-    const expenses = await ExpenseModel.find(query)
-      .sort({ timestamp: -1 })
-      .limit(limit);
+    const expenses = await ExpenseModel.find(query).sort({ timestamp: -1 }).limit(limit);
 
     return expenses;
   }
@@ -58,10 +56,22 @@ export class ExpenseService {
     trackerId?: string;
     userId?: string;
   }) {
-    const { amount, category, subcategory, categoryId, paymentMethod, description, timestamp, trackerId, userId } = data;
+    const {
+      amount,
+      category,
+      subcategory,
+      categoryId,
+      paymentMethod,
+      description,
+      timestamp,
+      trackerId,
+      userId,
+    } = data;
 
     if (!amount || !category || !subcategory || !categoryId || !paymentMethod) {
-      throw new Error('Missing required fields: amount, category, subcategory, categoryId, paymentMethod');
+      throw new Error(
+        'Missing required fields: amount, category, subcategory, categoryId, paymentMethod'
+      );
     }
 
     const expense = await ExpenseModel.create({
@@ -73,7 +83,7 @@ export class ExpenseService {
       description,
       timestamp: timestamp || new Date(),
       trackerId: trackerId || 'default',
-      userId
+      userId,
     });
 
     return expense;
@@ -98,11 +108,10 @@ export class ExpenseService {
     const query: any = { _id: expenseId };
     if (userId) query.userId = userId;
 
-    const expense = await ExpenseModel.findOneAndUpdate(
-      query,
-      updates,
-      { new: true, runValidators: true }
-    );
+    const expense = await ExpenseModel.findOneAndUpdate(query, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!expense) {
       throw new Error('Expense not found');

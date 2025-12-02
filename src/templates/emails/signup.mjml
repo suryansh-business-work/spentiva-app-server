@@ -1,7 +1,10 @@
 <mjml>
   <mj-head>
     <mj-title>Welcome to Spentiva!</mj-title>
-    <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" />
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    />
     <mj-attributes>
       <mj-all font-family="Inter, Arial, sans-serif" />
       <mj-text font-size="16px" color="#333333" line-height="1.6" />
@@ -24,13 +27,12 @@
         <mj-text font-size="24px" font-weight="600" color="#1f2937" padding-bottom="20px">
           Welcome to Spentiva! 🎉
         </mj-text>
-        
+
+        <mj-text color="#4b5563"> Hi {{ name }}, </mj-text>
+
         <mj-text color="#4b5563">
-          Hi {{name}},
-        </mj-text>
-        
-        <mj-text color="#4b5563">
-          Thank you for signing up! We're excited to help you take control of your expenses and achieve your financial goals.
+          Thank you for signing up! We're excited to help you take control of your expenses and
+          achieve your financial goals.
         </mj-text>
 
         <!-- Getting Started Section -->
@@ -40,9 +42,9 @@
               🚀 Getting Started
             </mj-text>
             <mj-text color="#047857" padding="5px 0" font-size="14px">
-              ✓ Create your first expense tracker<br/>
-              ✓ Add expenses using natural language<br/>
-              ✓ View insights and analytics<br/>
+              ✓ Create your first expense tracker<br />
+              ✓ Add expenses using natural language<br />
+              ✓ View insights and analytics<br />
               ✓ Set budgets and goals
             </mj-text>
           </mj-column>
@@ -52,25 +54,33 @@
           Ready to get started? Click the button below to explore your dashboard.
         </mj-text>
 
-        <mj-button background-color="#6366f1" color="#ffffff" border-radius="6px" padding="20px 0" href="https://app.spentiva.com/dashboard">
+        <mj-button
+          background-color="#6366f1"
+          color="#ffffff"
+          border-radius="6px"
+          padding="20px 0"
+          href="https://app.spentiva.com/dashboard"
+        >
           Go to Dashboard
         </mj-button>
 
         <!-- Key Features -->
-        <mj-text font-weight="600" color="#374151" padding-top="30px">
-          Key Features:
-        </mj-text>
+        <mj-text font-weight="600" color="#374151" padding-top="30px"> Key Features: </mj-text>
         <mj-text color="#6b7280" font-size="14px">
-          • <strong>AI-Powered Parsing:</strong> Add expenses in plain text<br/>
-          • <strong>Smart Analytics:</strong> Visualize your spending patterns<br/>
-          • <strong>Multiple Trackers:</strong> Manage personal and business expenses<br/>
+          • <strong>AI-Powered Parsing:</strong> Add expenses in plain text<br />
+          • <strong>Smart Analytics:</strong> Visualize your spending patterns<br />
+          • <strong>Multiple Trackers:</strong> Manage personal and business expenses<br />
           • <strong>Email Reports:</strong> Get monthly summaries delivered to you
         </mj-text>
 
         <mj-divider border-color="#e5e7eb" padding="30px 0" />
 
         <mj-text color="#6b7280" font-size="14px">
-          Need help? Check out our <a href="https://spentiva.com/docs" style="color: #6366f1; text-decoration: none;">documentation</a> or contact our support team at support@spentiva.com.
+          Need help? Check out our
+          <a href="https://spentiva.com/docs" style="color: #6366f1; text-decoration: none"
+            >documentation</a
+          >
+          or contact our support team at support@spentiva.com.
         </mj-text>
       </mj-column>
     </mj-section>

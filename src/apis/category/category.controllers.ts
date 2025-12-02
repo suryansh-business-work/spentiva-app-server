@@ -58,7 +58,7 @@ export const createCategoryController = async (req: any, res: Response) => {
       message: 'Category created successfully',
       data: { category },
       status: 'success',
-      statusCode: 201
+      statusCode: 201,
     });
     return;
   } catch (error: any) {

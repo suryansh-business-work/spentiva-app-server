@@ -15,9 +15,7 @@ export class MessageService {
     if (userId) query.userId = new mongoose.Types.ObjectId(userId);
     if (trackerId) query.trackerId = trackerId;
 
-    const messages = await MessageModel.find(query)
-      .sort({ timestamp: -1 })
-      .limit(limit);
+    const messages = await MessageModel.find(query).sort({ timestamp: -1 }).limit(limit);
 
     return messages;
   }
@@ -59,7 +57,7 @@ export class MessageService {
       role,
       content,
       tokenCount: tokenCount || 0,
-      timestamp: timestamp || new Date()
+      timestamp: timestamp || new Date(),
     });
 
     return message;

@@ -1,20 +1,20 @@
-import dotenv from "dotenv";
-import express from "express";
-import cors from "cors";
-import db from "./config/db";
-import config from "./config/env";
+import dotenv from 'dotenv';
+import express from 'express';
+import cors from 'cors';
+import db from './config/db';
+import config from './config/env';
 
 // Modular API Routes
-import authRoutes from "./apis/auth/auth.routes";
-import trackerRoutes from "./apis/tracker/tracker.routes";
+import authRoutes from './apis/auth/auth.routes';
+import trackerRoutes from './apis/tracker/tracker.routes';
 
-import categoryRoutes from "./apis/category/category.routes";
-import expenseRoutes from "./apis/expense/expense.routes";
-import messageRoutes from "./apis/message/message.routes";
-import usageRoutes from "./apis/usage/usage.routes";
-import usageLogRoutes from "./apis/usage-log/usage-log.routes";
-import imagekitUploadRoutes from "./apis/file-upload/imagekit-file-upload/imagekit.routes";
-import analyticsRoutes from "./apis/analytics/analytics.routes";
+import categoryRoutes from './apis/category/category.routes';
+import expenseRoutes from './apis/expense/expense.routes';
+import messageRoutes from './apis/message/message.routes';
+import usageRoutes from './apis/usage/usage.routes';
+import usageLogRoutes from './apis/usage-log/usage-log.routes';
+import imagekitUploadRoutes from './apis/file-upload/imagekit-file-upload/imagekit.routes';
+import analyticsRoutes from './apis/analytics/analytics.routes';
 
 dotenv.config();
 const app = express();
@@ -24,29 +24,28 @@ const PORT = config.PORT;
 db(config.DBURL);
 
 // CORS Configuration
-const allowedOrigins = [
-  'https://app.spentiva.com',
-  'http://localhost:8001'
-];
+const allowedOrigins = ['https://app.spentiva.com', 'http://localhost:8001'];
 
-app.use(cors({
-  origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
 
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(null, false);
-    }
-  },
-  credentials: true, // Allow cookies and authorization headers
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range'],
-  maxAge: 86400, // 24 hours
-}));
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(null, false);
+      }
+    },
+    credentials: true, // Allow cookies and authorization headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    maxAge: 86400, // 24 hours
+  })
+);
 
 app.use(express.json());
 
@@ -71,8 +70,8 @@ app.use('/v1/api', authRoutes);
 app.use('/v1/api', trackerRoutes);
 
 // Health check
-app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", message: "Server is running" });
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
 });
 
 // Analytics

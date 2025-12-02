@@ -10,11 +10,7 @@ const imageKitUpload = async (req: any, res: Response) => {
   try {
     // Validate that files are present
     if (!req?.files?.files) {
-      return errorResponse(
-        res,
-        { error: 'No files provided' },
-        'Files are required for upload'
-      );
+      return errorResponse(res, { error: 'No files provided' }, 'Files are required for upload');
     }
 
     const files = req.files.files;
@@ -23,11 +19,7 @@ const imageKitUpload = async (req: any, res: Response) => {
     if (!Array.isArray(files)) {
       const { name, data } = files;
 
-      const uploadResult = await imagekitService.uploadRawData(
-        data,
-        name,
-        '/suryansh'
-      );
+      const uploadResult = await imagekitService.uploadRawData(data, name, '/suryansh');
 
       return successResponseArr(
         res,
@@ -37,15 +29,15 @@ const imageKitUpload = async (req: any, res: Response) => {
             size: uploadResult.size,
             fileName: {
               actual: name,
-              uploadedName: uploadResult.name
+              uploadedName: uploadResult.name,
             },
             filePath: {
               filePath: uploadResult.filePath,
               fileUrl: uploadResult.url,
-              thumbnailUrl: uploadResult.thumbnailUrl
+              thumbnailUrl: uploadResult.thumbnailUrl,
             },
-            fileType: uploadResult.fileType
-          }
+            fileType: uploadResult.fileType,
+          },
         ],
         {},
         'File uploaded successfully'
@@ -55,13 +47,10 @@ const imageKitUpload = async (req: any, res: Response) => {
     // Handle multiple file uploads
     const fileArray = files.map((file: any) => ({
       name: file.name,
-      data: file.data
+      data: file.data,
     }));
 
-    const uploadResults = await imagekitService.uploadMultipleFiles(
-      fileArray,
-      '/suryansh'
-    );
+    const uploadResults = await imagekitService.uploadMultipleFiles(fileArray, '/suryansh');
 
     return successResponseArr(
       res,
@@ -72,22 +61,17 @@ const imageKitUpload = async (req: any, res: Response) => {
         filePath: {
           filePath: result.filePath,
           fileUrl: result.url,
-          thumbnailUrl: result.thumbnailUrl
+          thumbnailUrl: result.thumbnailUrl,
         },
-        fileType: result.fileType
+        fileType: result.fileType,
       })),
       {},
       'All files uploaded successfully'
     );
   } catch (error: any) {
     console.error('Error in imageKitUpload controller:', error);
-    return errorResponse(
-      res,
-      { error: error.message },
-      'File upload failed'
-    );
+    return errorResponse(res, { error: error.message }, 'File upload failed');
   }
 };
 
 export { imageKitUpload };
-

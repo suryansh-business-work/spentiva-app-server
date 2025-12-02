@@ -17,7 +17,7 @@ export const getAllLogsController = async (req: any, res: Response) => {
     const logs = await UsageLogService.getAllLogs({
       userId,
       trackerId: trackerId as string,
-      limit: limit ? parseInt(limit as string) : undefined
+      limit: limit ? parseInt(limit as string) : undefined,
     });
 
     return successResponse(res, { logs }, 'Usage logs retrieved successfully');
@@ -41,14 +41,14 @@ export const createLogController = async (req: any, res: Response) => {
       messageRole,
       messageContent,
       tokenCount,
-      timestamp
+      timestamp,
     });
 
     res.status(201).json({
       message: 'Usage log created successfully',
       data: { log },
       status: 'success',
-      statusCode: 201
+      statusCode: 201,
     });
     return;
   } catch (error: any) {

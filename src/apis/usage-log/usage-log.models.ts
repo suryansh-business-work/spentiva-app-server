@@ -20,25 +20,31 @@ export interface IUsageLog extends Document {
   createdAt: Date;
 }
 
-const TrackerSnapshotSchema = new Schema({
-  trackerId: { type: String, required: true },
-  trackerName: { type: String, required: true },
-  trackerType: { type: String, required: true, enum: ['business', 'personal'] },
-  isDeleted: { type: Boolean, default: false },
-  deletedAt: { type: Date },
-  modifiedAt: { type: Date }
-}, { _id: false });
+const TrackerSnapshotSchema = new Schema(
+  {
+    trackerId: { type: String, required: true },
+    trackerName: { type: String, required: true },
+    trackerType: { type: String, required: true, enum: ['business', 'personal'] },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
+    modifiedAt: { type: Date },
+  },
+  { _id: false }
+);
 
-const UsageLogSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  trackerSnapshot: { type: TrackerSnapshotSchema, required: true },
-  messageRole: { type: String, required: true, enum: ['user', 'assistant'] },
-  messageContent: { type: String, required: true },
-  tokenCount: { type: Number, required: true },
-  timestamp: { type: Date, required: true, default: Date.now, index: true }
-}, {
-  timestamps: true
-});
+const UsageLogSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    trackerSnapshot: { type: TrackerSnapshotSchema, required: true },
+    messageRole: { type: String, required: true, enum: ['user', 'assistant'] },
+    messageContent: { type: String, required: true },
+    tokenCount: { type: Number, required: true },
+    timestamp: { type: Date, required: true, default: Date.now, index: true },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Compound index for efficient queries
 UsageLogSchema.index({ userId: 1, timestamp: -1 });

@@ -72,12 +72,15 @@ class TrackerService {
   /**
    * Create a new tracker with default categories
    */
-  async createTracker(userId: string, data: {
-    name: string;
-    type: 'personal' | 'business';
-    description?: string;
-    currency: 'INR' | 'USD' | 'EUR' | 'GBP';
-  }) {
+  async createTracker(
+    userId: string,
+    data: {
+      name: string;
+      type: 'personal' | 'business';
+      description?: string;
+      currency: 'INR' | 'USD' | 'EUR' | 'GBP';
+    }
+  ) {
     // Validate required fields
     if (!data.name || !data.type || !data.currency) {
       throw new Error('Missing required fields: name, type, and currency are required');
@@ -138,12 +141,16 @@ class TrackerService {
   /**
    * Update a tracker
    */
-  async updateTracker(userId: string, trackerId: string, data: {
-    name?: string;
-    type?: 'personal' | 'business';
-    description?: string;
-    currency?: 'INR' | 'USD' | 'EUR' | 'GBP';
-  }) {
+  async updateTracker(
+    userId: string,
+    trackerId: string,
+    data: {
+      name?: string;
+      type?: 'personal' | 'business';
+      description?: string;
+      currency?: 'INR' | 'USD' | 'EUR' | 'GBP';
+    }
+  ) {
     const tracker = await TrackerModel.findOneAndUpdate(
       { _id: trackerId, userId },
       { name: data.name, type: data.type, description: data.description, currency: data.currency },
@@ -158,7 +165,10 @@ class TrackerService {
     if (data.name || data.type) {
       try {
         const { updateTrackerInUsage } = await import('../usage-log/usage-log.services');
-        await updateTrackerInUsage(trackerId, { trackerName: tracker.name, trackerType: tracker.type });
+        await updateTrackerInUsage(trackerId, {
+          trackerName: tracker.name,
+          trackerType: tracker.type,
+        });
         console.log(`✅ Updated tracker ${trackerId} in usage records`);
       } catch (usageError) {
         console.error('Error updating tracker in usage:', usageError);

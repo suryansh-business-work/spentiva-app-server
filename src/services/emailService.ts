@@ -11,14 +11,14 @@ const transporter = nodemailer.createTransport({
   secure: true, // true for 465, false for other ports
   auth: {
     user: config?.SERVICES?.EMAIL?.NODEMAILER?.USER,
-    pass: config?.SERVICES?.EMAIL?.NODEMAILER?.PASS
+    pass: config?.SERVICES?.EMAIL?.NODEMAILER?.PASS,
   },
   connectionTimeout: 5000, // 5 seconds
   greetingTimeout: 5000, // 5 seconds
   socketTimeout: 10000, // 10 seconds
   pool: true,
   maxConnections: 5,
-  maxMessages: 10
+  maxMessages: 10,
 });
 
 // Verify SMTP connection on startup
@@ -51,7 +51,7 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
       from: options.from || `"Spentiva" <${config?.SERVICES?.EMAIL?.NODEMAILER?.USER}>`,
       to: options.to,
       subject: options.subject,
-      html: options.html
+      html: options.html,
     };
 
     const info = await transporter.sendMail(mailOptions);
@@ -94,7 +94,7 @@ export const sendWelcomeEmail = async (to: string, name: string): Promise<void> 
   await sendEmail({
     to,
     subject: 'Welcome to Spentiva! 🎉',
-    html
+    html,
   });
 };
 
@@ -107,9 +107,8 @@ export const sendOtpEmail = async (
   otp: string,
   type: 'verification' | 'reset'
 ): Promise<void> => {
-  const subject = type === 'verification'
-    ? 'Verify Your Email - Spentiva'
-    : 'Reset Your Password - Spentiva';
+  const subject =
+    type === 'verification' ? 'Verify Your Email - Spentiva' : 'Reset Your Password - Spentiva';
 
   const templateFile = type === 'verification' ? 'signup-otp.mjml' : 'forgot-password.mjml';
   const templatePath = path.join(__dirname, `../templates/emails/${templateFile}`);
@@ -133,7 +132,7 @@ export const sendPasswordResetEmail = async (
   await sendEmail({
     to,
     subject: 'Reset Your Password - Spentiva',
-    html
+    html,
   });
 };
 
@@ -153,51 +152,45 @@ export const sendLoginNotificationEmail = async (
   const html = compileMjmlTemplate(templatePath, {
     name,
     timestamp: loginInfo.timestamp.toLocaleString(),
-    device: loginInfo.device || 'Unknown Device'
+    device: loginInfo.device || 'Unknown Device',
   });
 
   await sendEmail({
     to,
     subject: 'New Login to Your Spentiva Account',
-    html
+    html,
   });
 };
 
 /**
  * Send password reset success confirmation
  */
-export const sendPasswordResetSuccessEmail = async (
-  to: string,
-  name: string
-): Promise<void> => {
+export const sendPasswordResetSuccessEmail = async (to: string, name: string): Promise<void> => {
   const templatePath = path.join(__dirname, '../templates/emails/reset-password-success.mjml');
   const html = compileMjmlTemplate(templatePath, {
     name,
     email: to,
-    timestamp: new Date().toLocaleString()
+    timestamp: new Date().toLocaleString(),
   });
 
   await sendEmail({
     to,
     subject: 'Password Reset Successful - Spentiva',
-    html
+    html,
   });
 };
 
 /**
  * Send signup OTP email
  */
-export const sendSignupOtpEmail = async (
-  to: string,
-  otp: string
-): Promise<void> => {
+export const sendSignupOtpEmail = async (to: string, otp: string): Promise<void> => {
   const templatePath = path.join(__dirname, '../templates/emails/signup-otp.mjml');
   const html = compileMjmlTemplate(templatePath, { otp });
 
   await sendEmail({
     to,
     subject: 'Verify Your Email - Spentiva',
-    html
+    html,
   });
 };
 
@@ -208,5 +201,5 @@ export default {
   sendSignupOtpEmail,
   sendPasswordResetEmail,
   sendLoginNotificationEmail,
-  sendPasswordResetSuccessEmail
+  sendPasswordResetSuccessEmail,
 };

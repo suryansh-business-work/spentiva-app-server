@@ -31,7 +31,7 @@ export class CategoryService {
     const category = await CategoryModel.create({
       trackerId,
       name,
-      subcategories
+      subcategories,
     });
     return category;
   }
@@ -39,12 +39,14 @@ export class CategoryService {
   /**
    * Update a category
    */
-  static async updateCategory(categoryId: string, updates: { name?: string; subcategories?: any[] }) {
-    const category = await CategoryModel.findByIdAndUpdate(
-      categoryId,
-      updates,
-      { new: true, runValidators: true }
-    );
+  static async updateCategory(
+    categoryId: string,
+    updates: { name?: string; subcategories?: any[] }
+  ) {
+    const category = await CategoryModel.findByIdAndUpdate(categoryId, updates, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!category) {
       throw new Error('Category not found');

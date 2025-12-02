@@ -81,7 +81,7 @@ class ImageKitService {
     folder: string = 'uploads'
   ) {
     try {
-      const uploadPromises = files.map(async (file) => {
+      const uploadPromises = files.map(async file => {
         const uploadResult = await imagekit.upload({
           file: file.data,
           fileName: file.name,
@@ -155,4 +155,3 @@ class ImageKitService {
 }
 
 export default new ImageKitService();
-

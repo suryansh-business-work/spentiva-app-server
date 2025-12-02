@@ -11,8 +11,8 @@ export default {
         HOST: process.env.NODEMAILER_HOST || 'smtp.gmail.com',
         PORT: parseInt(process.env.NODEMAILER_PORT || '465'),
         USER: process.env.NODEMAILER_USER || 'suryansh@exyconn.com',
-        PASS: process.env.NODEMAILER_PASS || 'ylip muer ugqn xvym'
-      }
-    }
-  }
+        PASS: process.env.NODEMAILER_PASS || 'ylip muer ugqn xvym',
+      },
+    },
+  },
 };

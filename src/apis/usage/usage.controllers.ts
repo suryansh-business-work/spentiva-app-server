@@ -22,7 +22,7 @@ export const getOverallUsageController = async (req: any, res: Response) => {
     console.log('[Overall Usage] Response:', {
       totalMessages: response.overall.totalMessages,
       trackersCount: response.byTracker.length,
-      deletedTrackers: response.byTracker.filter(t => t.isDeleted).length
+      deletedTrackers: response.byTracker.filter(t => t.isDeleted).length,
     });
 
     return successResponse(res, response, 'Overall usage statistics retrieved successfully');
@@ -50,7 +50,7 @@ export const getTrackerUsageController = async (req: any, res: Response) => {
       trackerId,
       totalMessages: response.usage.totalMessages,
       isDeleted: response.tracker.isDeleted,
-      messagesCount: response.messages.length
+      messagesCount: response.messages.length,
     });
 
     return successResponse(res, response, 'Tracker usage statistics retrieved successfully');
@@ -87,7 +87,7 @@ export const getTrackerLogsController = async (req: any, res: Response) => {
       trackerId,
       totalCount: response.totalCount,
       returnedCount: response.logs.length,
-      hasMore: response.hasMore
+      hasMore: response.hasMore,
     });
 
     return successResponse(res, response, 'Tracker logs retrieved successfully');

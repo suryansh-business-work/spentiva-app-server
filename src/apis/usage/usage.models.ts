@@ -23,26 +23,32 @@ export interface IUsage extends Document {
   updatedAt: Date;
 }
 
-const TrackerSnapshotSchema = new Schema({
-  trackerId: { type: String, required: true },
-  trackerName: { type: String, required: true },
-  trackerType: { type: String, required: true, enum: ['business', 'personal'] },
-  isDeleted: { type: Boolean, default: false },
-  deletedAt: { type: Date },
-  modifiedAt: { type: Date }
-}, { _id: false });
+const TrackerSnapshotSchema = new Schema(
+  {
+    trackerId: { type: String, required: true },
+    trackerName: { type: String, required: true },
+    trackerType: { type: String, required: true, enum: ['business', 'personal'] },
+    isDeleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
+    modifiedAt: { type: Date },
+  },
+  { _id: false }
+);
 
-const UsageSchema = new Schema({
-  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  date: { type: Date, required: true, index: true },
-  trackerSnapshot: { type: TrackerSnapshotSchema, required: true },
-  totalMessages: { type: Number, default: 0 },
-  userMessages: { type: Number, default: 0 },
-  aiMessages: { type: Number, default: 0 },
-  totalTokens: { type: Number, default: 0 }
-}, {
-  timestamps: true
-});
+const UsageSchema = new Schema(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
+    date: { type: Date, required: true, index: true },
+    trackerSnapshot: { type: TrackerSnapshotSchema, required: true },
+    totalMessages: { type: Number, default: 0 },
+    userMessages: { type: Number, default: 0 },
+    aiMessages: { type: Number, default: 0 },
+    totalTokens: { type: Number, default: 0 },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Compound index for efficient queries
 UsageSchema.index({ userId: 1, date: 1, 'trackerSnapshot.trackerId': 1 }, { unique: true });

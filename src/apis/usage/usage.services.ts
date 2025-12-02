@@ -18,7 +18,7 @@ export class UsageService {
     // Get overall statistics
     const overallStats = await UsageModel.aggregate([
       {
-        $match: { userId: userObjectId }
+        $match: { userId: userObjectId },
       },
       {
         $group: {
@@ -26,15 +26,15 @@ export class UsageService {
           totalMessages: { $sum: '$totalMessages' },
           totalTokens: { $sum: '$totalTokens' },
           userMessages: { $sum: '$userMessages' },
-          aiMessages: { $sum: '$aiMessages' }
-        }
-      }
+          aiMessages: { $sum: '$aiMessages' },
+        },
+      },
     ]);
 
     // Get statistics grouped by tracker (including deleted ones)
     const byTracker = await UsageModel.aggregate([
       {
-        $match: { userId: userObjectId }
+        $match: { userId: userObjectId },
       },
       {
         $group: {
@@ -44,12 +44,12 @@ export class UsageService {
           isDeleted: { $first: '$trackerSnapshot.isDeleted' },
           deletedAt: { $first: '$trackerSnapshot.deletedAt' },
           messageCount: { $sum: '$totalMessages' },
-          tokenCount: { $sum: '$totalTokens' }
-        }
+          tokenCount: { $sum: '$totalTokens' },
+        },
       },
       {
-        $sort: { messageCount: -1 }
-      }
+        $sort: { messageCount: -1 },
+      },
     ]);
 
     // Get recent activity (last 30 days)
@@ -60,39 +60,40 @@ export class UsageService {
       {
         $match: {
           userId: userObjectId,
-          date: { $gte: thirtyDaysAgo }
-        }
+          date: { $gte: thirtyDaysAgo },
+        },
       },
       {
         $group: {
           _id: '$date',
           messageCount: { $sum: '$totalMessages' },
-          tokenCount: { $sum: '$totalTokens' }
-        }
+          tokenCount: { $sum: '$totalTokens' },
+        },
       },
       {
-        $sort: { _id: 1 }
+        $sort: { _id: 1 },
       },
       {
         $project: {
           _id: 0,
           date: '$_id',
           messageCount: 1,
-          tokenCount: 1
-        }
-      }
+          tokenCount: 1,
+        },
+      },
     ]);
 
-    const overall = overallStats.length > 0
-      ? overallStats[0]
-      : { totalMessages: 0, totalTokens: 0, userMessages: 0, aiMessages: 0 };
+    const overall =
+      overallStats.length > 0
+        ? overallStats[0]
+        : { totalMessages: 0, totalTokens: 0, userMessages: 0, aiMessages: 0 };
 
     return {
       overall: {
         totalMessages: overall.totalMessages || 0,
         totalTokens: overall.totalTokens || 0,
         userMessages: overall.userMessages || 0,
-        aiMessages: overall.aiMessages || 0
+        aiMessages: overall.aiMessages || 0,
       },
       byTracker: byTracker.map(tracker => ({
         trackerId: tracker._id,
@@ -101,9 +102,9 @@ export class UsageService {
         isDeleted: tracker.isDeleted || false,
         deletedAt: tracker.deletedAt,
         messageCount: tracker.messageCount,
-        tokenCount: tracker.tokenCount
+        tokenCount: tracker.tokenCount,
       })),
-      recentActivity
+      recentActivity,
     };
   }
 
@@ -120,8 +121,8 @@ export class UsageService {
       {
         $match: {
           userId: userObjectId,
-          'trackerSnapshot.trackerId': trackerId
-        }
+          'trackerSnapshot.trackerId': trackerId,
+        },
       },
       {
         $group: {
@@ -133,9 +134,9 @@ export class UsageService {
           trackerName: { $first: '$trackerSnapshot.trackerName' },
           trackerType: { $first: '$trackerSnapshot.trackerType' },
           isDeleted: { $first: '$trackerSnapshot.isDeleted' },
-          deletedAt: { $first: '$trackerSnapshot.deletedAt' }
-        }
-      }
+          deletedAt: { $first: '$trackerSnapshot.deletedAt' },
+        },
+      },
     ]);
 
     // If no usage data yet, try to get tracker info
@@ -151,16 +152,16 @@ export class UsageService {
           trackerName: tracker.name,
           trackerType: tracker.type,
           isDeleted: false,
-          deletedAt: null
+          deletedAt: null,
         },
         usage: {
           totalMessages: 0,
           totalTokens: 0,
           userMessages: 0,
-          aiMessages: 0
+          aiMessages: 0,
         },
         dailyUsage: [],
-        messages: []
+        messages: [],
       };
     }
 
@@ -169,29 +170,29 @@ export class UsageService {
       {
         $match: {
           userId: userObjectId,
-          'trackerSnapshot.trackerId': trackerId
-        }
+          'trackerSnapshot.trackerId': trackerId,
+        },
       },
       {
-        $sort: { date: -1 }
+        $sort: { date: -1 },
       },
       {
-        $limit: 30
+        $limit: 30,
       },
       {
         $project: {
           _id: 0,
           date: 1,
           messageCount: '$totalMessages',
-          tokenCount: '$totalTokens'
-        }
-      }
+          tokenCount: '$totalTokens',
+        },
+      },
     ]);
 
     // Get recent messages (from UsageLog)
     const messages = await UsageLogModel.find({
       userId: userObjectId,
-      'trackerSnapshot.trackerId': trackerId
+      'trackerSnapshot.trackerId': trackerId,
     })
       .sort({ timestamp: -1 })
       .limit(100)
@@ -205,13 +206,13 @@ export class UsageService {
         trackerName: stats.trackerName,
         trackerType: stats.trackerType,
         isDeleted: stats.isDeleted || false,
-        deletedAt: stats.deletedAt
+        deletedAt: stats.deletedAt,
       },
       usage: {
         totalMessages: stats.totalMessages,
         totalTokens: stats.totalTokens,
         userMessages: stats.userMessages,
-        aiMessages: stats.aiMessages
+        aiMessages: stats.aiMessages,
       },
       dailyUsage,
       messages: messages.map(msg => ({
@@ -219,34 +220,39 @@ export class UsageService {
         role: msg.messageRole,
         content: msg.messageContent,
         tokenCount: msg.tokenCount,
-        timestamp: msg.timestamp
-      }))
+        timestamp: msg.timestamp,
+      })),
     };
   }
 
   /**
    * Get logs for a specific tracker with pagination
    */
-  static async getTrackerLogs(userId: string, trackerId: string, limit: number = 100, offset: number = 0) {
+  static async getTrackerLogs(
+    userId: string,
+    trackerId: string,
+    limit: number = 100,
+    offset: number = 0
+  ) {
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
     console.log('[Tracker Logs] Fetching for:', {
       userId,
       trackerId,
       limit,
-      offset
+      offset,
     });
 
     // Get total count
     const totalCount = await UsageLogModel.countDocuments({
       userId: userObjectId,
-      'trackerSnapshot.trackerId': trackerId
+      'trackerSnapshot.trackerId': trackerId,
     });
 
     // Get paginated logs
     const logs = await UsageLogModel.find({
       userId: userObjectId,
-      'trackerSnapshot.trackerId': trackerId
+      'trackerSnapshot.trackerId': trackerId,
     })
       .sort({ timestamp: -1 })
       .skip(offset)
@@ -269,9 +275,9 @@ export class UsageService {
           trackerId: log.trackerSnapshot.trackerId,
           trackerName: log.trackerSnapshot.trackerName,
           trackerType: log.trackerSnapshot.trackerType,
-          isDeleted: log.trackerSnapshot.isDeleted || false
-        }
-      }))
+          isDeleted: log.trackerSnapshot.isDeleted || false,
+        },
+      })),
     };
   }
 }

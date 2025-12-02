@@ -76,7 +76,8 @@ const generateReportEmail = (data) => {
           </mj-column>
         </mj-section>
 
-        ${data.categoryData.map((category, index) => {
+        ${data.categoryData
+        .map((category, index) => {
         const percentage = (category.total / data.totalExpenses) * 100;
         return `
             <mj-section background-color="#ffffff" padding="${index === 0 ? '20px 40px 10px' : '10px 40px'}">
@@ -107,10 +108,12 @@ const generateReportEmail = (data) => {
               </mj-column>
             </mj-section>
           `;
-    }).join('')}
+    })
+        .join('')}
 
         <!-- Monthly Trend -->
-        ${data.monthlyData.length > 0 ? `
+        ${data.monthlyData.length > 0
+        ? `
         <mj-section background-color="#ffffff" padding="40px 40px 20px">
           <mj-column>
             <mj-text font-size="20px" font-weight="700" color="#1f2937">
@@ -126,19 +129,36 @@ const generateReportEmail = (data) => {
                 <th style="padding: 10px; font-weight: 600; color: #6b7280; font-size: 12px; text-transform: uppercase;">Month</th>
                 <th style="padding: 10px; font-weight: 600; color: #6b7280; font-size: 12px; text-transform: uppercase; text-align: right;">Amount</th>
               </tr>
-              ${data.monthlyData.filter(m => m.total > 0).map(month => {
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `
+              ${data.monthlyData
+            .filter(m => m.total > 0)
+            .map(month => {
+            const monthNames = [
+                'Jan',
+                'Feb',
+                'Mar',
+                'Apr',
+                'May',
+                'Jun',
+                'Jul',
+                'Aug',
+                'Sep',
+                'Oct',
+                'Nov',
+                'Dec',
+            ];
+            return `
                   <tr style="border-bottom: 1px solid #f3f4f6;">
                     <td style="padding: 12px; color: #374151;">${monthNames[month.month - 1]}</td>
                     <td style="padding: 12px; color: #845c58; font-weight: 600; text-align: right;">₹${month.total.toLocaleString('en-IN')}</td>
                   </tr>
                 `;
-    }).join('')}
+        })
+            .join('')}
             </mj-table>
           </mj-column>
         </mj-section>
-        ` : ''}
+        `
+        : ''}
 
         <!-- Call to Action -->
         <mj-section background-color="#ffffff" padding="40px">

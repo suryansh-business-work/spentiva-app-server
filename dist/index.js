@@ -24,10 +24,7 @@ const PORT = env_1.default.PORT;
 // Initialize database connection
 (0, db_1.default)(env_1.default.DBURL);
 // CORS Configuration
-const allowedOrigins = [
-    'https://app.spentiva.com',
-    'http://localhost:8001'
-];
+const allowedOrigins = ['https://app.spentiva.com', 'http://localhost:8001'];
 app.use((0, cors_1.default)({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps or curl requests)
@@ -65,8 +62,8 @@ app.use('/v1/api', imagekit_routes_1.default);
 app.use('/v1/api', auth_routes_1.default);
 app.use('/v1/api', tracker_routes_1.default);
 // Health check
-app.get("/api/health", (req, res) => {
-    res.json({ status: "ok", message: "Server is running" });
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', message: 'Server is running' });
 });
 // Analytics
 app.use('/api/analytics', analytics_routes_1.default);

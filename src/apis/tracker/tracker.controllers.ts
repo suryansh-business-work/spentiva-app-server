@@ -40,7 +40,7 @@ export const createTrackerController = async (req: any, res: Response) => {
       message: 'Tracker created successfully',
       data: { tracker },
       status: 'success',
-      statusCode: 201
+      statusCode: 201,
     });
     return;
   } catch (error: any) {

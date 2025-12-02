@@ -1,4 +1,12 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional, Matches, ValidateIf } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsOptional,
+  Matches,
+  ValidateIf,
+} from 'class-validator';
 import { Request, Response, NextFunction } from 'express';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
@@ -127,9 +135,11 @@ export function validateDto(dtoClass: any) {
       const errors = await validate(dtoInstance);
 
       if (errors.length > 0) {
-        const errorMessages = errors.map(error => {
-          return Object.values(error.constraints || {}).join(', ');
-        }).join('; ');
+        const errorMessages = errors
+          .map(error => {
+            return Object.values(error.constraints || {}).join(', ');
+          })
+          .join('; ');
 
         return badRequestResponse(res, errors, errorMessages);
       }

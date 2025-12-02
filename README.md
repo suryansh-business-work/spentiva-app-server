@@ -46,6 +46,7 @@ Spentiva is a modern expense tracking server that leverages OpenAI's GPT models 
 ## 🔧 Installation
 
 ### Prerequisites
+
 - Node.js 20.x or higher
 - MongoDB 8.x or higher
 - OpenAI API Key
@@ -103,7 +104,7 @@ services:
   spentiva-backend:
     build: .
     ports:
-      - "8002:8002"
+      - '8002:8002'
     environment:
       - PORT=8002
       - MONGODB_URL=${MONGODB_URL}
@@ -115,11 +116,13 @@ services:
 ## 📚 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:8002/api
 ```
 
 ### Authentication Header
+
 ```
 Authorization: Bearer <your_jwt_token>
 ```
@@ -129,40 +132,40 @@ Authorization: Bearer <your_jwt_token>
 <details>
 <summary><b>🔐 Authentication</b></summary>
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/auth/send-otp` | Send OTP to phone number | ❌ |
-| POST | `/auth/verify-otp` | Verify OTP and login/signup | ❌ |
-| GET | `/auth/me` | Get current user profile | ✅ |
-| PUT | `/auth/profile` | Update user profile | ✅ |
-| POST | `/auth/profile-photo` | Upload profile photo | ✅ |
-| POST | `/auth/send-email-otp` | Send email verification OTP | ✅ |
-| POST | `/auth/verify-email-otp` | Verify email OTP | ✅ |
+| Method | Endpoint                 | Description                 | Auth |
+| ------ | ------------------------ | --------------------------- | ---- |
+| POST   | `/auth/send-otp`         | Send OTP to phone number    | ❌   |
+| POST   | `/auth/verify-otp`       | Verify OTP and login/signup | ❌   |
+| GET    | `/auth/me`               | Get current user profile    | ✅   |
+| PUT    | `/auth/profile`          | Update user profile         | ✅   |
+| POST   | `/auth/profile-photo`    | Upload profile photo        | ✅   |
+| POST   | `/auth/send-email-otp`   | Send email verification OTP | ✅   |
+| POST   | `/auth/verify-email-otp` | Verify email OTP            | ✅   |
 
 </details>
 
 <details>
 <summary><b>💰 Expenses</b></summary>
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/expenses` | Create new expense | Optional |
-| GET | `/expenses` | Get all expenses | ❌ |
-| PUT | `/expenses/:id` | Update expense | ❌ |
-| DELETE | `/expenses/:id` | Delete expense | ❌ |
-| POST | `/parse-expense` | Parse natural language expense | ✅ |
+| Method | Endpoint         | Description                    | Auth     |
+| ------ | ---------------- | ------------------------------ | -------- |
+| POST   | `/expenses`      | Create new expense             | Optional |
+| GET    | `/expenses`      | Get all expenses               | ❌       |
+| PUT    | `/expenses/:id`  | Update expense                 | ❌       |
+| DELETE | `/expenses/:id`  | Delete expense                 | ❌       |
+| POST   | `/parse-expense` | Parse natural language expense | ✅       |
 
 </details>
 
 <details>
 <summary><b>📊 Analytics</b></summary>
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/analytics/summary` | Get summary statistics | ❌ |
-| GET | `/analytics/by-category` | Get expenses by category | ❌ |
-| GET | `/analytics/by-month` | Get monthly expense trends | ❌ |
-| GET | `/analytics/total` | Get total expenses | ❌ |
+| Method | Endpoint                 | Description                | Auth |
+| ------ | ------------------------ | -------------------------- | ---- |
+| GET    | `/analytics/summary`     | Get summary statistics     | ❌   |
+| GET    | `/analytics/by-category` | Get expenses by category   | ❌   |
+| GET    | `/analytics/by-month`    | Get monthly expense trends | ❌   |
+| GET    | `/analytics/total`       | Get total expenses         | ❌   |
 
 </details>
 
@@ -171,21 +174,21 @@ Authorization: Bearer <your_jwt_token>
 
 **Trackers**
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/trackers` | Create new tracker | ✅ |
-| GET | `/trackers` | Get all user trackers | ✅ |
-| PUT | `/trackers/:id` | Update tracker | ✅ |
-| DELETE | `/trackers/:id` | Delete tracker | ✅ |
+| Method | Endpoint        | Description           | Auth |
+| ------ | --------------- | --------------------- | ---- |
+| POST   | `/trackers`     | Create new tracker    | ✅   |
+| GET    | `/trackers`     | Get all user trackers | ✅   |
+| PUT    | `/trackers/:id` | Update tracker        | ✅   |
+| DELETE | `/trackers/:id` | Delete tracker        | ✅   |
 
 **Chat & AI**
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/chat` | Chat with AI assistant | ✅ |
-| GET | `/reports/email` | Generate email report | ✅ |
-| GET | `/usage/statistics` | Get usage statistics | ✅ |
-| GET | `/health` | Server health status | ❌ |
+| Method | Endpoint            | Description            | Auth |
+| ------ | ------------------- | ---------------------- | ---- |
+| POST   | `/chat`             | Chat with AI assistant | ✅   |
+| GET    | `/reports/email`    | Generate email report  | ✅   |
+| GET    | `/usage/statistics` | Get usage statistics   | ✅   |
+| GET    | `/health`           | Server health status   | ❌   |
 
 </details>
 
@@ -247,13 +250,13 @@ spentiva-app-server/
 
 ## 🔄 Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Development server with hot reload |
-| `npm run build` | Compile TypeScript to JavaScript |
-| `npm start` | Start production server |
-| `npm test` | Run test suite |
-| `npm run migrate:usage` | Run usage data migration |
+| Script                  | Description                        |
+| ----------------------- | ---------------------------------- |
+| `npm run dev`           | Development server with hot reload |
+| `npm run build`         | Compile TypeScript to JavaScript   |
+| `npm start`             | Start production server            |
+| `npm test`              | Run test suite                     |
+| `npm run migrate:usage` | Run usage data migration           |
 
 ## 🚀 CI/CD Pipeline
 
@@ -284,17 +287,17 @@ GitHub Repository → Settings → Secrets and variables → Actions → Reposit
 
 #### Required Secrets
 
-| Secret Name | Description | How to Get |
-|-------------|-------------|------------|
-| `OPENAI_API_KEY` | OpenAI API key for AI expense parsing | [OpenAI Platform](https://platform.openai.com/api-keys) |
-| `MONGODB_URL` | MongoDB connection string | Copy from MongoDB Atlas or `.env` file |
-| `JWT_SECRET` | Secret key for JWT token signing | Generate using command below ⬇️ |
-| `DOCKERHUB_USERNAME` | Docker Hub username | Your Docker Hub account |
-| `DOCKERHUB_TOKEN` | Docker Hub access token | [Docker Hub Settings](https://hub.docker.com/settings/security) |
-| `SSH_HOST` | Production server IP/domain | Your server's IP address |
-| `SSH_USER` | SSH username | Usually `root` or `ubuntu` |
-| `SSH_KEY` | SSH private key | Entire private key content |
-| `SSH_PORT` | SSH port | Usually `22` |
+| Secret Name          | Description                           | How to Get                                                      |
+| -------------------- | ------------------------------------- | --------------------------------------------------------------- |
+| `OPENAI_API_KEY`     | OpenAI API key for AI expense parsing | [OpenAI Platform](https://platform.openai.com/api-keys)         |
+| `MONGODB_URL`        | MongoDB connection string             | Copy from MongoDB Atlas or `.env` file                          |
+| `JWT_SECRET`         | Secret key for JWT token signing      | Generate using command below ⬇️                                 |
+| `DOCKERHUB_USERNAME` | Docker Hub username                   | Your Docker Hub account                                         |
+| `DOCKERHUB_TOKEN`    | Docker Hub access token               | [Docker Hub Settings](https://hub.docker.com/settings/security) |
+| `SSH_HOST`           | Production server IP/domain           | Your server's IP address                                        |
+| `SSH_USER`           | SSH username                          | Usually `root` or `ubuntu`                                      |
+| `SSH_KEY`            | SSH private key                       | Entire private key content                                      |
+| `SSH_PORT`           | SSH port                              | Usually `22`                                                    |
 
 #### Generate JWT Secret
 
@@ -312,13 +315,13 @@ The deployment workflow passes secrets as environment variables to your Docker c
 
 ```yaml
 docker run -d --name spentiva-app-server \
-  -p 8002:8002 \
-  -e PORT=8002 \
-  -e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
-  -e MONGODB_URL=${{ secrets.MONGODB_URL }} \
-  -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-  --restart=always \
-  username/spentiva-app-server:latest
+-p 8002:8002 \
+-e PORT=8002 \
+-e OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+-e MONGODB_URL=${{ secrets.MONGODB_URL }} \
+-e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+--restart=always \
+username/spentiva-app-server:latest
 ```
 
 #### Quick Setup Checklist
@@ -336,12 +339,12 @@ docker run -d --name spentiva-app-server \
 
 ## 🌍 Environment Variables
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `PORT` | Server port | No | 8002 |
-| `MONGODB_URL` | MongoDB connection string | Yes | - |
-| `OPENAI_API_KEY` | OpenAI API key | Yes | - |
-| `JWT_SECRET` | JWT signing secret | Yes | - |
+| Variable         | Description               | Required | Default |
+| ---------------- | ------------------------- | -------- | ------- |
+| `PORT`           | Server port               | No       | 8002    |
+| `MONGODB_URL`    | MongoDB connection string | Yes      | -       |
+| `OPENAI_API_KEY` | OpenAI API key            | Yes      | -       |
+| `JWT_SECRET`     | JWT signing secret        | Yes      | -       |
 
 ## 🔒 Security Features
 

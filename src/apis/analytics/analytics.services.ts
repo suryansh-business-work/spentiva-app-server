@@ -11,7 +11,11 @@ export class AnalyticsService {
   /**
    * Get date range based on filter
    */
-  static getDateRange(filter: string, customStart?: string, customEnd?: string): { startDate: Date; endDate: Date } {
+  static getDateRange(
+    filter: string,
+    customStart?: string,
+    customEnd?: string
+  ): { startDate: Date; endDate: Date } {
     const now = new Date();
     let startDate: Date;
     let endDate: Date = now;
@@ -64,7 +68,7 @@ export class AnalyticsService {
     const { startDate, endDate, categoryId, trackerId } = query;
 
     const matchQuery: any = {
-      timestamp: { $gte: startDate, $lte: endDate }
+      timestamp: { $gte: startDate, $lte: endDate },
     };
 
     if (categoryId) {
@@ -82,16 +86,16 @@ export class AnalyticsService {
           _id: null,
           totalExpenses: { $sum: '$amount' },
           transactionCount: { $sum: 1 },
-          averageExpense: { $avg: '$amount' }
-        }
-      }
+          averageExpense: { $avg: '$amount' },
+        },
+      },
     ]);
 
     if (stats.length === 0) {
       return {
         totalExpenses: 0,
         transactionCount: 0,
-        averageExpense: 0
+        averageExpense: 0,
       };
     }
 
@@ -105,7 +109,7 @@ export class AnalyticsService {
     const { startDate, endDate, trackerId } = query;
 
     const matchQuery: any = {
-      timestamp: { $gte: startDate, $lte: endDate }
+      timestamp: { $gte: startDate, $lte: endDate },
     };
 
     if (trackerId) {
@@ -118,18 +122,18 @@ export class AnalyticsService {
         $group: {
           _id: '$category',
           total: { $sum: '$amount' },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       {
         $project: {
           _id: 0,
           category: '$_id',
           total: 1,
-          count: 1
-        }
+          count: 1,
+        },
       },
-      { $sort: { total: -1 } }
+      { $sort: { total: -1 } },
     ]);
 
     return categoryData;
@@ -144,7 +148,7 @@ export class AnalyticsService {
     const endDate = new Date(targetYear, 11, 31, 23, 59, 59);
 
     const matchQuery: any = {
-      timestamp: { $gte: startDate, $lte: endDate }
+      timestamp: { $gte: startDate, $lte: endDate },
     };
 
     if (trackerId) {
@@ -157,18 +161,18 @@ export class AnalyticsService {
         $group: {
           _id: { $month: '$timestamp' },
           total: { $sum: '$amount' },
-          count: { $sum: 1 }
-        }
+          count: { $sum: 1 },
+        },
       },
       {
         $project: {
           _id: 0,
           month: '$_id',
           total: 1,
-          count: 1
-        }
+          count: 1,
+        },
       },
-      { $sort: { month: 1 } }
+      { $sort: { month: 1 } },
     ]);
 
     return monthlyData;
@@ -181,7 +185,7 @@ export class AnalyticsService {
     const { startDate, endDate, trackerId } = query;
 
     const matchQuery: any = {
-      timestamp: { $gte: startDate, $lte: endDate }
+      timestamp: { $gte: startDate, $lte: endDate },
     };
 
     if (trackerId) {
@@ -193,9 +197,9 @@ export class AnalyticsService {
       {
         $group: {
           _id: null,
-          total: { $sum: '$amount' }
-        }
-      }
+          total: { $sum: '$amount' },
+        },
+      },
     ]);
 
     return result.length > 0 ? result[0].total : 0;

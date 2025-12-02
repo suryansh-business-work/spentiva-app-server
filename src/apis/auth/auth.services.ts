@@ -19,11 +19,7 @@ export class AuthService {
    * Generate JWT token for user
    */
   private static generateToken(userId: string, email: string): string {
-    return jwt.sign(
-      { userId, email },
-      config.JWT_SECRET,
-      { expiresIn: '30d' }
-    );
+    return jwt.sign({ userId, email }, config.JWT_SECRET, { expiresIn: '30d' });
   }
 
   /**
@@ -53,10 +49,12 @@ export class AuthService {
     }
 
     // Send login notification (async, don't wait)
-    emailService.sendLoginNotificationEmail(email, user.name, {
-      timestamp: new Date(),
-      device: userAgent || 'Unknown Device'
-    }).catch(err => console.error('Error sending login notification:', err));
+    emailService
+      .sendLoginNotificationEmail(email, user.name, {
+        timestamp: new Date(),
+        device: userAgent || 'Unknown Device',
+      })
+      .catch(err => console.error('Error sending login notification:', err));
 
     // Generate token
     const token = this.generateToken(user._id.toString(), user.email);
@@ -72,7 +70,7 @@ export class AuthService {
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
         accountType: user.accountType,
-      }
+      },
     };
   }
 
@@ -95,11 +93,12 @@ export class AuthService {
       password, // Will be hashed by pre-save hook
       name,
       accountType,
-      emailVerified: false
+      emailVerified: false,
     });
 
     // Send welcome email (async)
-    emailService.sendWelcomeEmail(email, name)
+    emailService
+      .sendWelcomeEmail(email, name)
       .catch(err => console.error('Error sending welcome email:', err));
 
     // Generate OTP for verification
@@ -109,11 +108,12 @@ export class AuthService {
     await OTPModel.create({
       identifier: email,
       otp,
-      type: 'email'
+      type: 'email',
     });
 
     // Send verification email (async)
-    emailService.sendOtpEmail(email, name, otp, 'verification')
+    emailService
+      .sendOtpEmail(email, name, otp, 'verification')
       .catch(err => console.error('Error sending verification email:', err));
 
     // Generate token
@@ -130,7 +130,7 @@ export class AuthService {
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
         accountType: user.accountType,
-      }
+      },
     };
   }
 
@@ -143,7 +143,7 @@ export class AuthService {
     // Don't reveal user existence for security
     if (!user) {
       return {
-        message: 'If an account exists with this email, you will receive a reset code.'
+        message: 'If an account exists with this email, you will receive a reset code.',
       };
     }
 
@@ -163,14 +163,14 @@ export class AuthService {
     await OTPModel.create({
       identifier: email,
       otp,
-      type: 'email'
+      type: 'email',
     });
 
     // Send email with OTP
     await emailService.sendOtpEmail(email, user.name, otp, 'reset');
 
     return {
-      message: 'Password reset code sent to email'
+      message: 'Password reset code sent to email',
     };
   }
 
@@ -184,7 +184,7 @@ export class AuthService {
       otp,
       type: 'email',
       verified: false,
-      expiresAt: { $gt: new Date() }
+      expiresAt: { $gt: new Date() },
     });
 
     if (!otpDoc) {
@@ -208,11 +208,12 @@ export class AuthService {
     await otpDoc.save();
 
     // Send confirmation email (async)
-    emailService.sendPasswordResetSuccessEmail(email, user.name)
+    emailService
+      .sendPasswordResetSuccessEmail(email, user.name)
       .catch(err => console.error('Error sending reset success email:', err));
 
     return {
-      message: 'Password reset successfully'
+      message: 'Password reset successfully',
     };
   }
 
@@ -225,7 +226,7 @@ export class AuthService {
       otp,
       type: 'email',
       verified: false,
-      expiresAt: { $gt: new Date() }
+      expiresAt: { $gt: new Date() },
     });
 
     if (!otpDoc) {
@@ -256,7 +257,7 @@ export class AuthService {
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
         accountType: user.accountType,
-      }
+      },
     };
   }
 
@@ -280,14 +281,14 @@ export class AuthService {
     await OTPModel.create({
       identifier: email,
       otp,
-      type: 'email'
+      type: 'email',
     });
 
     // Send email
     await emailService.sendOtpEmail(email, user.name, otp, 'verification');
 
     return {
-      message: 'Verification code sent to email'
+      message: 'Verification code sent to email',
     };
   }
 
@@ -310,14 +311,17 @@ export class AuthService {
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
         accountType: user.accountType,
-      }
+      },
     };
   }
 
   /**
    * Update user profile
    */
-  static async updateProfile(userId: string, updates: { name?: string; email?: string; phone?: string }) {
+  static async updateProfile(
+    userId: string,
+    updates: { name?: string; email?: string; phone?: string }
+  ) {
     const user = await UserModel.findById(userId);
     if (!user) {
       throw new Error('User not found');
@@ -350,7 +354,7 @@ export class AuthService {
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
         accountType: user.accountType,
-      }
+      },
     };
   }
 
@@ -371,7 +375,7 @@ export class AuthService {
 
     return {
       message: 'Profile photo uploaded successfully',
-      photoUrl
+      photoUrl,
     };
   }
 }

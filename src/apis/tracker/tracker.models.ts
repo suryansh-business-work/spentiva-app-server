@@ -22,32 +22,32 @@ const TrackerSchema: Schema = new Schema(
     name: {
       type: String,
       required: true,
-      trim: true
+      trim: true,
     },
     type: {
       type: String,
       required: true,
       enum: ['personal', 'business'],
-      default: 'personal'
+      default: 'personal',
     },
     description: {
       type: String,
-      trim: true
+      trim: true,
     },
     currency: {
       type: String,
       required: true,
       enum: ['INR', 'USD', 'EUR', 'GBP'],
-      default: 'INR'
+      default: 'INR',
     },
     userId: {
       type: String,
       required: true,
-      trim: true
-    }
+      trim: true,
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

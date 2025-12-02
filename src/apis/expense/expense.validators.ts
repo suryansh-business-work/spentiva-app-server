@@ -51,7 +51,7 @@ export class CreateExpenseDto {
 }
 
 /**
- * Update Expense DTO  
+ * Update Expense DTO
  */
 export class UpdateExpenseDto {
   @IsNumber()

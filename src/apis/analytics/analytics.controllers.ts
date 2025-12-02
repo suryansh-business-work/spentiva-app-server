@@ -25,7 +25,7 @@ export const getSummaryController = async (req: any, res: Response) => {
 
     const query: any = {
       startDate: dateRange.startDate,
-      endDate: dateRange.endDate
+      endDate: dateRange.endDate,
     };
 
     if (categoryId) {
@@ -43,7 +43,7 @@ export const getSummaryController = async (req: any, res: Response) => {
       {
         stats,
         filter: filter || 'all',
-        dateRange
+        dateRange,
       },
       'Summary statistics retrieved successfully'
     );
@@ -72,7 +72,7 @@ export const getByCategoryController = async (req: any, res: Response) => {
 
     const query: any = {
       startDate: dateRange.startDate,
-      endDate: dateRange.endDate
+      endDate: dateRange.endDate,
     };
 
     if (trackerId) {
@@ -100,7 +100,10 @@ export const getByMonthController = async (req: any, res: Response) => {
     const { year, trackerId } = req.query;
     const targetYear = year ? parseInt(year as string) : undefined;
 
-    const data = await AnalyticsService.getExpensesByMonth(targetYear, trackerId as string | undefined);
+    const data = await AnalyticsService.getExpensesByMonth(
+      targetYear,
+      trackerId as string | undefined
+    );
 
     return successResponse(
       res,
@@ -121,7 +124,7 @@ export const getTotalController = async (req: any, res: Response) => {
     const { trackerId } = req.query;
     const query: any = {
       startDate: new Date(0),
-      endDate: new Date()
+      endDate: new Date(),
     };
 
     if (trackerId) {

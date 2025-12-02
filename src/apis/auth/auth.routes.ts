@@ -11,7 +11,7 @@ import {
   sendVerificationOtpController,
   getMeController,
   updateProfileController,
-  uploadProfilePhotoController
+  uploadProfilePhotoController,
 } from './auth.controllers';
 import {
   validateDto,
@@ -21,7 +21,7 @@ import {
   ResetPasswordDto,
   VerifyEmailDto,
   SendVerificationOtpDto,
-  UpdateProfileDto
+  UpdateProfileDto,
 } from './auth.validators';
 import { UserModel, OTPModel } from './auth.models';
 import { authenticateToken } from '../../middleware/auth.middleware';
@@ -44,9 +44,8 @@ const upload = multer({
     } else {
       cb(new Error('Only image files are allowed'));
     }
-  }
+  },
 });
-
 
 // ============ MAIN AUTH ROUTES ============
 
@@ -90,7 +89,11 @@ router.post('/verify-email', validateDto(VerifyEmailDto), verifyEmailController)
  * @desc    Send verification OTP to email
  * @access  Public
  */
-router.post('/send-verification-otp', validateDto(SendVerificationOtpDto), sendVerificationOtpController);
+router.post(
+  '/send-verification-otp',
+  validateDto(SendVerificationOtpDto),
+  sendVerificationOtpController
+);
 
 /**
  * @route   GET /api/auth/me
@@ -111,7 +114,12 @@ router.put('/profile', authenticateToken, validateDto(UpdateProfileDto), updateP
  * @desc    Upload profile photo
  * @access  Private
  */
-router.post('/profile-photo', authenticateToken, upload.single('photo'), uploadProfilePhotoController);
+router.post(
+  '/profile-photo',
+  authenticateToken,
+  upload.single('photo'),
+  uploadProfilePhotoController
+);
 
 // ============ LEGACY COMPATIBILITY ROUTES ============
 
@@ -140,7 +148,7 @@ router.post('/send-otp', async (req, res) => {
       await OTPModel.create({
         identifier,
         otp,
-        type: 'email'
+        type: 'email',
       });
 
       // Send email
@@ -160,7 +168,7 @@ router.post('/send-otp', async (req, res) => {
       return res.json({
         message: 'OTP sent to email',
         otpId: 'compat-id',
-        devOtp: otp // Return actual OTP for development
+        devOtp: otp, // Return actual OTP for development
       });
     } else {
       return res.status(400).json({ error: 'Please use email address instead of phone number' });
@@ -193,7 +201,7 @@ router.post('/verify-otp', async (req, res) => {
         otp,
         type: 'email',
         verified: false,
-        expiresAt: { $gt: new Date() }
+        expiresAt: { $gt: new Date() },
       });
 
       if (!otpDoc) {
@@ -213,14 +221,15 @@ router.post('/verify-otp', async (req, res) => {
         }
 
         // Generate random password for OTP-based signup
-        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+        const randomPassword =
+          Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
 
         user = await UserModel.create({
           email: identifier,
           name,
           password: randomPassword,
           emailVerified: true,
-          accountType: accountType || 'personal'
+          accountType: accountType || 'personal',
         });
 
         // Send welcome email
@@ -240,7 +249,7 @@ router.post('/verify-otp', async (req, res) => {
         try {
           emailService.sendLoginNotificationEmail(identifier, user.name, {
             timestamp: new Date(),
-            device: req.headers['user-agent'] || 'Unknown Device'
+            device: req.headers['user-agent'] || 'Unknown Device',
           });
         } catch (e) {
           console.error('Error sending login notification:', e);
@@ -248,11 +257,9 @@ router.post('/verify-otp', async (req, res) => {
       }
 
       // Generate Token
-      const token = jwt.sign(
-        { userId: user._id, email: user.email },
-        config.JWT_SECRET,
-        { expiresIn: '30d' }
-      );
+      const token = jwt.sign({ userId: user._id, email: user.email }, config.JWT_SECRET, {
+        expiresIn: '30d',
+      });
 
       return res.json({
         message: 'Authentication successful',
@@ -266,7 +273,7 @@ router.post('/verify-otp', async (req, res) => {
           phoneVerified: user.phoneVerified,
           profilePhoto: user.profilePhoto,
           accountType: user.accountType,
-        }
+        },
       });
     } else {
       return res.status(400).json({ error: 'Please use email address' });

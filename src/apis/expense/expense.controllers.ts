@@ -19,7 +19,7 @@ export const parseExpenseController = async (req: any, res: Response) => {
       hasTrackerId: !!trackerId,
       hasUserId: !!req.user?.userId,
       trackerId,
-      userId: req.user?.userId
+      userId: req.user?.userId,
     });
 
     if (!message) {
@@ -36,7 +36,7 @@ export const parseExpenseController = async (req: any, res: Response) => {
       try {
         const tracker = await TrackerModel.findOne({
           _id: trackerId,
-          userId: req.user.userId
+          userId: req.user.userId,
         });
 
         if (tracker) {
@@ -58,13 +58,7 @@ export const parseExpenseController = async (req: any, res: Response) => {
         const userTokens = encode(message).length;
 
         const { logUsage } = await import('../usage-log/usage-log.services');
-        await logUsage(
-          req.user.userId,
-          trackerSnapshot,
-          'user',
-          message,
-          userTokens
-        );
+        await logUsage(req.user.userId, trackerSnapshot, 'user', message, userTokens);
         console.log('[Parse Expense] User message logged with snapshot');
       } catch (logError) {
         console.error('[Parse Expense] Error logging user message:', logError);
@@ -82,13 +76,7 @@ export const parseExpenseController = async (req: any, res: Response) => {
         const aiTokens = encode(responseText).length;
 
         const { logUsage } = await import('../usage-log/usage-log.services');
-        await logUsage(
-          req.user.userId,
-          trackerSnapshot,
-          'assistant',
-          responseText,
-          aiTokens
-        );
+        await logUsage(req.user.userId, trackerSnapshot, 'assistant', responseText, aiTokens);
         console.log('[Parse Expense] AI response logged with snapshot');
       } catch (logError) {
         console.error('[Parse Expense] Error logging AI response:', logError);
@@ -112,7 +100,16 @@ export const parseExpenseController = async (req: any, res: Response) => {
  */
 export const createExpenseController = async (req: any, res: Response) => {
   try {
-    const { amount, category, subcategory, categoryId, paymentMethod, description, timestamp, trackerId } = req.body;
+    const {
+      amount,
+      category,
+      subcategory,
+      categoryId,
+      paymentMethod,
+      description,
+      timestamp,
+      trackerId,
+    } = req.body;
     const userId = req.user?.userId;
 
     const expense = await ExpenseService.createExpense({
@@ -124,7 +121,7 @@ export const createExpenseController = async (req: any, res: Response) => {
       description,
       timestamp,
       trackerId,
-      userId
+      userId,
     });
 
     res.status(201).json({
@@ -141,10 +138,10 @@ export const createExpenseController = async (req: any, res: Response) => {
           timestamp: expense.timestamp,
           createdAt: expense.createdAt,
           updatedAt: expense.updatedAt,
-        }
+        },
       },
       status: 'success',
-      statusCode: 201
+      statusCode: 201,
     });
     return;
   } catch (error: any) {
@@ -167,7 +164,7 @@ export const getAllExpensesController = async (req: any, res: Response) => {
     const expenses = await ExpenseService.getAllExpenses({
       trackerId: trackerId as string,
       userId,
-      limit: limit ? parseInt(limit as string) : undefined
+      limit: limit ? parseInt(limit as string) : undefined,
     });
 
     const formattedExpenses = expenses.map(expense => ({
@@ -231,7 +228,8 @@ export const getExpenseByIdController = async (req: any, res: Response) => {
 export const updateExpenseController = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { amount, category, subcategory, categoryId, paymentMethod, description, timestamp } = req.body;
+    const { amount, category, subcategory, categoryId, paymentMethod, description, timestamp } =
+      req.body;
     const userId = req.user?.userId;
 
     const expense = await ExpenseService.updateExpense(
@@ -300,23 +298,18 @@ export const chatController = async (req: any, res: Response) => {
       try {
         const tracker = await TrackerModel.findOne({
           _id: trackerId,
-          userId: req.user.userId
+          userId: req.user.userId,
         });
 
         if (tracker) {
-          const { createTrackerSnapshot, logUsage } = await import('../usage-log/usage-log.services');
+          const { createTrackerSnapshot, logUsage } =
+            await import('../usage-log/usage-log.services');
           const { encode } = await import('gpt-tokenizer');
 
           trackerSnapshot = createTrackerSnapshot(tracker);
           const userTokens = encode(message).length;
 
-          await logUsage(
-            req.user.userId,
-            trackerSnapshot,
-            'user',
-            message,
-            userTokens
-          );
+          await logUsage(req.user.userId, trackerSnapshot, 'user', message, userTokens);
         }
       } catch (err) {
         console.error('[Chat] Error logging user message:', err);
@@ -334,13 +327,7 @@ export const chatController = async (req: any, res: Response) => {
 
         const aiTokens = encode(response).length;
 
-        await logUsage(
-          req.user.userId,
-          trackerSnapshot,
-          'assistant',
-          response,
-          aiTokens
-        );
+        await logUsage(req.user.userId, trackerSnapshot, 'assistant', response, aiTokens);
       } catch (err) {
         console.error('[Chat] Error logging AI response:', err);
       }

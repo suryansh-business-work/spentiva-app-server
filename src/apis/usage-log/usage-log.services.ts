@@ -15,9 +15,7 @@ export class UsageLogService {
     if (userId) query.userId = new mongoose.Types.ObjectId(userId);
     if (trackerId) query['trackerSnapshot.trackerId'] = trackerId;
 
-    const logs = await UsageLogModel.find(query)
-      .sort({ timestamp: -1 })
-      .limit(limit);
+    const logs = await UsageLogModel.find(query).sort({ timestamp: -1 }).limit(limit);
 
     return logs;
   }
@@ -43,7 +41,9 @@ export class UsageLogService {
     const { userId, trackerSnapshot, messageRole, messageContent, tokenCount, timestamp } = data;
 
     if (!userId || !trackerSnapshot || !messageRole || !messageContent) {
-      throw new Error('Missing required fields: userId, trackerSnapshot, messageRole, messageContent');
+      throw new Error(
+        'Missing required fields: userId, trackerSnapshot, messageRole, messageContent'
+      );
     }
 
     const log = await UsageLogModel.create({
@@ -52,7 +52,7 @@ export class UsageLogService {
       messageRole,
       messageContent,
       tokenCount: tokenCount || 0,
-      timestamp: timestamp || new Date()
+      timestamp: timestamp || new Date(),
     });
 
     return log;
@@ -66,12 +66,12 @@ export class UsageLogService {
     cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 
     const result = await UsageLogModel.deleteMany({
-      timestamp: { $lt: cutoffDate }
+      timestamp: { $lt: cutoffDate },
     });
 
     return {
       message: `Deleted ${result.deletedCount} logs older than ${daysOld} days`,
-      deletedCount: result.deletedCount
+      deletedCount: result.deletedCount,
     };
   }
 }
@@ -86,7 +86,7 @@ export function createTrackerSnapshot(tracker: any) {
     trackerType: tracker.type || 'default',
     isDeleted: tracker.isDeleted || false,
     deletedAt: tracker.deletedAt,
-    modifiedAt: tracker.updatedAt
+    modifiedAt: tracker.updatedAt,
   };
 }
 
@@ -113,7 +113,7 @@ export async function logUsage(
       trackerSnapshot,
       messageRole,
       messageContent,
-      tokenCount
+      tokenCount,
     });
   } catch (error) {
     console.error('[UsageLogger] Error logging usage:', error);
@@ -133,7 +133,7 @@ export async function updateTrackerInUsage(
 ) {
   try {
     const updateFields: any = {
-      'trackerSnapshot.modifiedAt': new Date()
+      'trackerSnapshot.modifiedAt': new Date(),
     };
 
     if (updates.trackerName) {
@@ -163,8 +163,8 @@ export async function markTrackerAsDeleted(trackerId: string) {
       {
         $set: {
           'trackerSnapshot.isDeleted': true,
-          'trackerSnapshot.deletedAt': new Date()
-        }
+          'trackerSnapshot.deletedAt': new Date(),
+        },
       }
     );
   } catch (error) {
