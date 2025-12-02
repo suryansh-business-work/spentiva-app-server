@@ -84,6 +84,35 @@
  *                 type: string
  *         trackerId:
  *           type: string
+ *
+ *     Message:
+ *       type: object
+ *       required:
+ *         - title
+ *         - content
+ *       properties:
+ *         id:
+ *           type: string
+ *         title:
+ *           type: string
+ *         content:
+ *           type: string
+ *         priority:
+ *           type: string
+ *           enum: [low, medium, high]
+ *           default: medium
+ *         status:
+ *           type: string
+ *           enum: [read, unread]
+ *           default: unread
+ *         userId:
+ *           type: string
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
  */
 
 export { };
