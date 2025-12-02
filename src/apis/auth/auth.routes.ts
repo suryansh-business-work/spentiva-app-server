@@ -24,9 +24,10 @@ import {
   UpdateProfileDto
 } from './auth.validators';
 import { UserModel, OTPModel } from './auth.models';
+import { authenticateToken } from '../../middleware/auth.middleware';
+import config from '../../config/env';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key-for-testing-only';
 
 // Configure multer for file uploads with memory storage (for ImageKit)
 const storage = multer.memoryStorage();
@@ -46,23 +47,6 @@ const upload = multer({
   }
 });
 
-// Auth Middleware
-export const authenticateToken = (req: any, res: any, next: any) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
-    if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
-    }
-    req.user = user;
-    next();
-  });
-};
 
 // ============ MAIN AUTH ROUTES ============
 
@@ -266,7 +250,7 @@ router.post('/verify-otp', async (req, res) => {
       // Generate Token
       const token = jwt.sign(
         { userId: user._id, email: user.email },
-        JWT_SECRET,
+        config.JWT_SECRET,
         { expiresIn: '30d' }
       );
 

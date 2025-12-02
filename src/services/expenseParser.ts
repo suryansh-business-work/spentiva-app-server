@@ -1,9 +1,10 @@
 import OpenAI from "openai";
 import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from "../config/categories";
 import { ParsedExpense } from "../types";
+import config from "../config/env";
 
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+const openai = config.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: config.OPENAI_API_KEY })
   : null;
 
 export class ExpenseParser {

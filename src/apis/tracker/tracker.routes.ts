@@ -6,7 +6,7 @@ import {
   updateTrackerController,
   deleteTrackerController,
 } from './tracker.controllers';
-import { authenticateToken } from '../auth/auth.routes';
+import { authenticateToken } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 

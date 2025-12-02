@@ -4,7 +4,7 @@ import {
   getTrackerUsageController,
   getTrackerLogsController,
 } from './usage.controllers';
-import { authenticateToken } from '../auth/auth.routes';
+import { authenticateToken } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 

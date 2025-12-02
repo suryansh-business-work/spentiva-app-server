@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { UserModel, OTPModel, IUser } from './auth.models';
 import emailService from '../../services/emailService';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key-for-testing-only';
+import config from '../../config/env';
 
 /**
  * Auth Service - Business logic for authentication
@@ -21,7 +21,7 @@ export class AuthService {
   private static generateToken(userId: string, email: string): string {
     return jwt.sign(
       { userId, email },
-      JWT_SECRET,
+      config.JWT_SECRET,
       { expiresIn: '30d' }
     );
   }
@@ -151,7 +151,7 @@ export class AuthService {
     const otp = this.generateOtp();
 
     // Generate Token for link (optional, for future use)
-    const resetToken = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '15m' });
+    const resetToken = jwt.sign({ id: user._id }, config.JWT_SECRET, { expiresIn: '15m' });
 
     // Save to user
     user.resetPasswordToken = resetToken;
