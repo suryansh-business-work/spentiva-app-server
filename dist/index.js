@@ -6,8 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
+const swagger_ui_express_1 = __importDefault(require("swagger-ui-express"));
 const db_1 = __importDefault(require("./config/db"));
 const env_1 = __importDefault(require("./config/env"));
+const config_1 = __importDefault(require("./swagger/config"));
 // Modular API Routes
 const auth_routes_1 = __importDefault(require("./apis/auth/auth.routes"));
 const tracker_routes_1 = __importDefault(require("./apis/tracker/tracker.routes"));
@@ -45,16 +47,22 @@ app.use((0, cors_1.default)({
     maxAge: 86400, // 24 hours
 }));
 app.use(express_1.default.json());
+// === Swagger API Documentation ===
+app.use('/api/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(config_1.default, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Spentiva API Docs',
+    customfavIcon: '/favicon.ico',
+}));
 // === Modular API Routes ===
 // Authentication
-app.use('/api/auth', auth_routes_1.default);
+app.use('/v1/api/auth', auth_routes_1.default);
 // Resource Routes
-app.use('/api/categories', category_routes_1.default);
-app.use('/api/expenses', expense_routes_1.default);
-app.use('/api/messages', message_routes_1.default);
-app.use('/api/trackers', tracker_routes_1.default);
-app.use('/api/usage', usage_routes_1.default);
-app.use('/api/usage-logs', usage_log_routes_1.default);
+app.use('/v1/api/categories', category_routes_1.default);
+app.use('/v1/api/expenses', expense_routes_1.default);
+app.use('/v1/api/messages', message_routes_1.default);
+app.use('/v1/api/trackers', tracker_routes_1.default);
+app.use('/v1/api/usage', usage_routes_1.default);
+app.use('/v1/api/usage-logs', usage_log_routes_1.default);
 // Reports (module not yet implemented)
 // app.use('/api/reports', reportRoutes);
 // File uploads
@@ -62,21 +70,23 @@ app.use('/v1/api', imagekit_routes_1.default);
 app.use('/v1/api', auth_routes_1.default);
 app.use('/v1/api', tracker_routes_1.default);
 // Health check
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', message: 'Server is running' });
+app.get('/', (req, res) => {
+    res.json({ status: 'ok', message: 'Spentiva Server is running' });
 });
 // Analytics
-app.use('/api/analytics', analytics_routes_1.default);
+app.use('/v1/api/analytics', analytics_routes_1.default);
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 // Global Error Handler
-app.use((err, req, res, _next) => {
+app.use((err, _req, res, _next) => {
     // Handle JSON parse errors
     if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
         console.error('Bad JSON:', err.message);
-        return res.status(400).json({ error: 'Invalid JSON payload provided' });
+        const { badRequestResponse } = require('./utils/response-object');
+        return badRequestResponse(res, null, 'Invalid JSON payload provided');
     }
     console.error('Global error:', err);
-    res.status(500).json({ error: 'Internal server error' });
+    const { errorResponse } = require('./utils/response-object');
+    return errorResponse(res, err, 'Internal server error');
 });

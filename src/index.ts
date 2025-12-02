@@ -64,15 +64,15 @@ app.use(
 
 // === Modular API Routes ===
 // Authentication
-app.use('/api/auth', authRoutes);
+app.use('/v1/api/auth', authRoutes);
 
 // Resource Routes
-app.use('/api/categories', categoryRoutes);
-app.use('/api/expenses', expenseRoutes);
-app.use('/api/messages', messageRoutes);
-app.use('/api/trackers', trackerRoutes);
-app.use('/api/usage', usageRoutes);
-app.use('/api/usage-logs', usageLogRoutes);
+app.use('/v1/api/categories', categoryRoutes);
+app.use('/v1/api/expenses', expenseRoutes);
+app.use('/v1/api/messages', messageRoutes);
+app.use('/v1/api/trackers', trackerRoutes);
+app.use('/v1/api/usage', usageRoutes);
+app.use('/v1/api/usage-logs', usageLogRoutes);
 
 // Reports (module not yet implemented)
 // app.use('/api/reports', reportRoutes);
@@ -83,15 +83,15 @@ app.use('/v1/api', authRoutes);
 app.use('/v1/api', trackerRoutes);
 
 // Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' });
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Spentiva Server is running' });
 });
 
 // Analytics
-app.use('/api/analytics', analyticsRoutes);
+app.use('/v1/api/analytics', analyticsRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Spentiva Server is running on http://localhost:${PORT}`);
 });
 
 // Global Error Handler
