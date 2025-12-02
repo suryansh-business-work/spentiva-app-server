@@ -31,7 +31,9 @@
     "nodemailer": "^7.0.10",
     "openai": "^4.20.1",
     "prettier": "^3.7.3",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -45,6 +47,8 @@
     "@types/node": "^20.10.4",
     "@types/nodemailer": "^7.0.3",
     "@types/supertest": "^6.0.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "chai": "^4.3.10",
     "mocha": "^10.2.0",
     "mongodb-memory-server": "^9.1.5",

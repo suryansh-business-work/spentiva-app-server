@@ -36,13 +36,20 @@ export const createTrackerController = async (req: any, res: Response) => {
       currency,
     });
 
-    res.status(201).json({
-      message: 'Tracker created successfully',
-      data: { tracker },
-      status: 'success',
-      statusCode: 201,
-    });
-    return;
+    return successResponse(
+      res,
+      {
+        tracker: {
+          id: tracker.id,
+          name: tracker.name,
+          type: tracker.type,
+          description: tracker.description,
+          currency: tracker.currency,
+          createdAt: tracker.createdAt,
+        },
+      },
+      'Tracker created successfully'
+    );
   } catch (error: any) {
     console.error('Error creating tracker:', error);
     if (error.message.includes('Missing required fields')) {

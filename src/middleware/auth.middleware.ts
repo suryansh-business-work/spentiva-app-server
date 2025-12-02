@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import config from '../config/env';
+import { errorResponse } from '../utils/response-object';
 
 /**
  * Authentication Middleware
@@ -10,12 +11,12 @@ export const authenticateMiddleware = (req: any, res: any, next: any) => {
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
+    return errorResponse(res, null, 'Access token required');
   }
 
   jwt.verify(token, config.JWT_SECRET, (err: any, user: any) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      return errorResponse(res, null, 'Invalid or expired token');
     }
     req.user = user;
     next();

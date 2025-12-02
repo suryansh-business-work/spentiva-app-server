@@ -54,13 +54,18 @@ export const createCategoryController = async (req: any, res: Response) => {
 
     const category = await CategoryService.createCategory(trackerId, name, subcategories || []);
 
-    res.status(201).json({
-      message: 'Category created successfully',
-      data: { category },
-      status: 'success',
-      statusCode: 201,
-    });
-    return;
+    return successResponse(
+      res,
+      {
+        category: {
+          id: category._id,
+          name: category.name,
+          subcategories: category.subcategories,
+          trackerId: category.trackerId,
+        },
+      },
+      'Category created successfully'
+    );
   } catch (error: any) {
     console.error('Error creating category:', error);
     return errorResponse(res, error, 'Internal server error');

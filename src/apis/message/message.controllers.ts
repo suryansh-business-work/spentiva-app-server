@@ -75,13 +75,8 @@ export const createMessageController = async (req: any, res: Response) => {
       timestamp,
     });
 
-    res.status(201).json({
-      message: 'Message created successfully',
-      data: { message },
-      status: 'success',
-      statusCode: 201,
-    });
-    return;
+    // Return response
+    return successResponse(res, { message }, 'Message created successfully');
   } catch (error: any) {
     console.error('Error creating message:', error);
     if (error.message.includes('Missing required fields')) {

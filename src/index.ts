@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import db from './config/db';
 import config from './config/env';
+import swaggerSpec from './swagger/config';
 
 // Modular API Routes
 import authRoutes from './apis/auth/auth.routes';
@@ -49,6 +51,17 @@ app.use(
 
 app.use(express.json());
 
+// === Swagger API Documentation ===
+app.use(
+  '/api/docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Spentiva API Docs',
+    customfavIcon: '/favicon.ico',
+  })
+);
+
 // === Modular API Routes ===
 // Authentication
 app.use('/api/auth', authRoutes);
@@ -82,13 +95,15 @@ app.listen(PORT, () => {
 });
 
 // Global Error Handler
-app.use((err: any, req: any, res: any, _next: any) => {
+app.use((err: any, _req: any, res: any, _next: any) => {
   // Handle JSON parse errors
   if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
     console.error('Bad JSON:', err.message);
-    return res.status(400).json({ error: 'Invalid JSON payload provided' });
+    const { badRequestResponse } = require('./utils/response-object');
+    return badRequestResponse(res, null, 'Invalid JSON payload provided');
   }
 
   console.error('Global error:', err);
-  res.status(500).json({ error: 'Internal server error' });
+  const { errorResponse } = require('./utils/response-object');
+  return errorResponse(res, err, 'Internal server error');
 });

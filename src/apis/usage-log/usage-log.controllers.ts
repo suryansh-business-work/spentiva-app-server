@@ -44,13 +44,19 @@ export const createLogController = async (req: any, res: Response) => {
       timestamp,
     });
 
-    res.status(201).json({
-      message: 'Usage log created successfully',
-      data: { log },
-      status: 'success',
-      statusCode: 201,
-    });
-    return;
+    return successResponse(
+      res,
+      {
+        log: {
+          id: log._id,
+          trackerSnapshot: log.trackerSnapshot,
+          messageRole: log.messageRole,
+          tokenCount: log.tokenCount,
+          timestamp: log.timestamp,
+        },
+      },
+      'Usage log created successfully'
+    );
   } catch (error: any) {
     console.error('Error creating usage log:', error);
     if (error.message.includes('Missing required fields')) {

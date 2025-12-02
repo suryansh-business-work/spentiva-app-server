@@ -26,6 +26,7 @@ import {
 import { UserModel, OTPModel } from './auth.models';
 import { authenticateMiddleware } from '../../middleware/auth.middleware';
 import config from '../../config/env';
+import { successResponse, badRequestResponse, errorResponse } from '../../utils/response-object';
 
 const router = express.Router();
 
@@ -142,7 +143,7 @@ router.post('/send-otp', async (req, res) => {
     const isEmail = identifier && identifier.includes('@');
 
     if (!identifier) {
-      return res.status(400).json({ error: 'Phone/Email is required' });
+      return badRequestResponse(res, null, 'Phone/Email is required');
     }
 
     if (isEmail) {
@@ -176,11 +177,11 @@ router.post('/send-otp', async (req, res) => {
         devOtp: otp, // Return actual OTP for development
       });
     } else {
-      return res.status(400).json({ error: 'Please use email address instead of phone number' });
+      return badRequestResponse(res, null, 'Please use email address instead of phone number');
     }
   } catch (error) {
     console.error('Error sending OTP:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return errorResponse(res, error, 'Internal server error');
   }
 });
 
@@ -196,7 +197,7 @@ router.post('/verify-otp', async (req, res) => {
     const isEmail = identifier && identifier.includes('@');
 
     if (!identifier || !otp) {
-      return res.status(400).json({ error: 'Identifier and OTP are required' });
+      return badRequestResponse(res, null, 'Identifier and OTP are required');
     }
 
     if (isEmail) {
@@ -210,7 +211,7 @@ router.post('/verify-otp', async (req, res) => {
       });
 
       if (!otpDoc) {
-        return res.status(400).json({ error: 'Invalid or expired OTP' });
+        return badRequestResponse(res, null, 'Invalid or expired OTP');
       }
 
       otpDoc.verified = true;
@@ -222,7 +223,7 @@ router.post('/verify-otp', async (req, res) => {
       if (!user) {
         // Signup
         if (!name) {
-          return res.status(400).json({ error: 'Name is required for signup' });
+          return badRequestResponse(res, null, 'Name is required for signup');
         }
 
         // Generate random password for OTP-based signup
@@ -281,11 +282,11 @@ router.post('/verify-otp', async (req, res) => {
         },
       });
     } else {
-      return res.status(400).json({ error: 'Please use email address' });
+      return badRequestResponse(res, null, 'Please use email address');
     }
   } catch (error) {
     console.error('Error verifying OTP:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return errorResponse(res, error, 'Internal server error');
   }
 });
 

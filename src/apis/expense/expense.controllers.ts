@@ -124,9 +124,9 @@ export const createExpenseController = async (req: any, res: Response) => {
       userId,
     });
 
-    res.status(201).json({
-      message: 'Expense logged successfully',
-      data: {
+    return successResponse(
+      res,
+      {
         expense: {
           id: expense._id.toString(),
           amount: expense.amount,
@@ -140,10 +140,8 @@ export const createExpenseController = async (req: any, res: Response) => {
           updatedAt: expense.updatedAt,
         },
       },
-      status: 'success',
-      statusCode: 201,
-    });
-    return;
+      'Expense logged successfully'
+    );
   } catch (error: any) {
     console.error('Error creating expense:', error);
     if (error.message.includes('Missing required fields')) {
