@@ -48,20 +48,42 @@ const db_1 = __importDefault(require("./config/db"));
 const env_1 = __importDefault(require("./config/env"));
 const Expense_1 = __importDefault(require("./models/Expense"));
 const Tracker_1 = __importDefault(require("./models/Tracker"));
-const User_1 = __importDefault(require("./models/User"));
-const OTP_1 = __importDefault(require("./models/OTP"));
 const Category_1 = __importDefault(require("./models/Category"));
 const expenseParser_1 = require("./services/expenseParser");
 const analyticsService_1 = require("./services/analyticsService");
 const categories_1 = require("./config/categories");
 const report_1 = __importDefault(require("./routes/report"));
 const usage_1 = __importDefault(require("./routes/usage"));
+const auth_routes_1 = __importDefault(require("./apis/auth/auth.routes"));
+const imagekit_routes_1 = __importDefault(require("./apis/file-upload/imagekit-file-upload/imagekit.routes"));
 const app = (0, express_1.default)();
 const PORT = env_1.default.PORT;
 // Initialize database connection
 (0, db_1.default)(env_1.default.DBURL);
-// Middleware
-app.use((0, cors_1.default)());
+// CORS Configuration
+const allowedOrigins = [
+    'https://app.spentiva.com',
+    'http://localhost:8001'
+];
+app.use((0, cors_1.default)({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin)
+            return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        }
+        else {
+            console.warn(`CORS blocked origin: ${origin}`);
+            callback(null, false);
+        }
+    },
+    credentials: true, // Allow cookies and authorization headers
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
+    maxAge: 86400, // 24 hours
+}));
 app.use(express_1.default.json());
 app.use('/uploads', express_1.default.static(path_1.default.join(__dirname, '../uploads')));
 // Report routes
@@ -114,255 +136,8 @@ const authenticateToken = (req, res, next) => {
 app.get("/api/health", (req, res) => {
     res.json({ status: "ok", message: "Server is running" });
 });
-// ============ AUTH ROUTES ============
-// Send OTP for login/signup
-app.post("/api/auth/send-otp", async (req, res) => {
-    try {
-        const { phone, type = 'phone' } = req.body;
-        if (!phone) {
-            return res.status(400).json({ error: "Phone number is required" });
-        }
-        // Delete any existing OTP for this phone
-        await OTP_1.default.deleteMany({ identifier: phone, type });
-        // Create new OTP (static 123456 for now)
-        const otp = await OTP_1.default.create({
-            identifier: phone,
-            otp: '123456',
-            type,
-        });
-        console.log(`OTP for ${phone}: 123456`); // Log for development
-        res.json({
-            message: "OTP sent successfully",
-            otpId: otp._id,
-            // Send OTP in response for development only
-            devOtp: '123456'
-        });
-    }
-    catch (error) {
-        console.error("Error sending OTP:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-// Verify OTP and login/signup
-app.post("/api/auth/verify-otp", async (req, res) => {
-    try {
-        const { phone, otp, name, accountType } = req.body;
-        if (!phone || !otp) {
-            return res.status(400).json({ error: "Phone and OTP are required" });
-        }
-        // Find OTP
-        const otpDoc = await OTP_1.default.findOne({
-            identifier: phone,
-            otp,
-            type: 'phone',
-            verified: false,
-            expiresAt: { $gt: new Date() }
-        });
-        if (!otpDoc) {
-            return res.status(400).json({ error: "Invalid or expired OTP" });
-        }
-        // Mark OTP as verified
-        otpDoc.verified = true;
-        await otpDoc.save();
-        // Check if user exists
-        let user = await User_1.default.findOne({ phone });
-        if (!user) {
-            // Signup - create new user
-            if (!name) {
-                return res.status(400).json({ error: "Name is required for signup" });
-            }
-            user = await User_1.default.create({
-                phone,
-                name,
-                phoneVerified: true,
-                accountType: accountType || 'personal'
-            });
-        }
-        else {
-            // Login - update phone verified status
-            user.phoneVerified = true;
-            await user.save();
-        }
-        // Generate JWT token
-        const token = jsonwebtoken_1.default.sign({ userId: user._id, phone: user.phone }, JWT_SECRET, { expiresIn: '30d' });
-        res.json({
-            message: "Authentication successful",
-            token,
-            user: {
-                id: user._id,
-                name: user.name,
-                phone: user.phone,
-                email: user.email,
-                emailVerified: user.emailVerified,
-                phoneVerified: user.phoneVerified,
-                profilePhoto: user.profilePhoto,
-                accountType: user.accountType,
-            }
-        });
-    }
-    catch (error) {
-        console.error("Error verifying OTP:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-// Get current user profile
-app.get("/api/auth/me", authenticateToken, async (req, res) => {
-    try {
-        const user = await User_1.default.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        res.json({
-            user: {
-                id: user._id,
-                name: user.name,
-                phone: user.phone,
-                email: user.email,
-                emailVerified: user.emailVerified,
-                phoneVerified: user.phoneVerified,
-                profilePhoto: user.profilePhoto,
-                accountType: user.accountType,
-            }
-        });
-    }
-    catch (error) {
-        console.error("Error fetching user:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-// Update user profile
-app.put("/api/auth/profile", authenticateToken, async (req, res) => {
-    try {
-        const { name, email } = req.body;
-        const user = await User_1.default.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        if (name)
-            user.name = name;
-        if (email !== undefined) {
-            user.email = email;
-            user.emailVerified = false; // Reset verification if email changes
-        }
-        await user.save();
-        res.json({
-            message: "Profile updated successfully",
-            user: {
-                id: user._id,
-                name: user.name,
-                phone: user.phone,
-                email: user.email,
-                emailVerified: user.emailVerified,
-                phoneVerified: user.phoneVerified,
-                profilePhoto: user.profilePhoto,
-                accountType: user.accountType,
-            }
-        });
-    }
-    catch (error) {
-        console.error("Error updating profile:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-// Upload profile photo
-app.post("/api/auth/profile-photo", authenticateToken, upload.single('photo'), async (req, res) => {
-    try {
-        if (!req.file) {
-            return res.status(400).json({ error: "No file uploaded" });
-        }
-        const user = await User_1.default.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        const photoUrl = `/uploads/${req.file.filename}`;
-        user.profilePhoto = photoUrl;
-        await user.save();
-        res.json({
-            message: "Profile photo uploaded successfully",
-            photoUrl
-        });
-    }
-    catch (error) {
-        console.error("Error uploading photo:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-// Send OTP for email verification
-app.post("/api/auth/send-email-otp", authenticateToken, async (req, res) => {
-    try {
-        const { email } = req.body;
-        if (!email) {
-            return res.status(400).json({ error: "Email is required" });
-        }
-        const user = await User_1.default.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        // Delete any existing OTP for this email
-        await OTP_1.default.deleteMany({ identifier: email, type: 'email' });
-        // Create new OTP
-        const otp = await OTP_1.default.create({
-            identifier: email,
-            otp: '123456',
-            type: 'email',
-        });
-        console.log(`Email OTP for ${email}: 123456`);
-        res.json({
-            message: "OTP sent to email",
-            otpId: otp._id,
-            devOtp: '123456'
-        });
-    }
-    catch (error) {
-        console.error("Error sending email OTP:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
-// Verify email OTP
-app.post("/api/auth/verify-email-otp", authenticateToken, async (req, res) => {
-    try {
-        const { email, otp } = req.body;
-        if (!email || !otp) {
-            return res.status(400).json({ error: "Email and OTP are required" });
-        }
-        const otpDoc = await OTP_1.default.findOne({
-            identifier: email,
-            otp,
-            type: 'email',
-            verified: false,
-            expiresAt: { $gt: new Date() }
-        });
-        if (!otpDoc) {
-            return res.status(400).json({ error: "Invalid or expired OTP" });
-        }
-        otpDoc.verified = true;
-        await otpDoc.save();
-        const user = await User_1.default.findById(req.user.userId);
-        if (!user) {
-            return res.status(404).json({ error: "User not found" });
-        }
-        user.email = email;
-        user.emailVerified = true;
-        await user.save();
-        res.json({
-            message: "Email verified successfully",
-            user: {
-                id: user._id,
-                name: user.name,
-                phone: user.phone,
-                email: user.email,
-                emailVerified: user.emailVerified,
-                phoneVerified: user.phoneVerified,
-                profilePhoto: user.profilePhoto,
-                accountType: user.accountType,
-            }
-        });
-    }
-    catch (error) {
-        console.error("Error verifying email OTP:", error);
-        res.status(500).json({ error: "Internal server error" });
-    }
-});
+// ============ AUTH ROUTES (New Modular Structure) ============
+app.use('/api/auth', auth_routes_1.default);
 // ============ END AUTH ROUTES ============
 app.get("/api/categories", (req, res) => {
     res.json({
@@ -1020,4 +795,16 @@ app.delete("/api/trackers/:trackerId/categories/:categoryId", authenticateToken,
         console.error("Error deleting category:", error);
         res.status(500).json({ error: "Internal server error" });
     }
+});
+app.use('/v1/api', imagekit_routes_1.default);
+app.use('/v1/api', auth_routes_1.default);
+// Global Error Handler
+app.use((err, req, res, next) => {
+    // Handle JSON parse errors
+    if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
+        console.error('Bad JSON:', err.message);
+        return res.status(400).json({ error: 'Invalid JSON payload provided' });
+    }
+    console.error('Global error:', err);
+    res.status(500).json({ error: 'Internal server error' });
 });

@@ -1,0 +1,79 @@
+<mjml>
+  <mj-head>
+    <mj-title>New Login to Your Account</mj-title>
+    <mj-font name="Inter" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+      <mj-text font-size="16px" color="#333333" line-height="1.6" />
+      <mj-section padding="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <!-- Header -->
+    <mj-section background-color="#6366f1" padding="30px">
+      <mj-column>
+        <mj-text align="center" color="#ffffff" font-size="28px" font-weight="700">
+          Spentiva
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="40px 30px">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="600" color="#1f2937" padding-bottom="20px">
+          New Login Detected
+        </mj-text>
+        
+        <mj-text color="#4b5563">
+          Hi {{name}},
+        </mj-text>
+        
+        <mj-text color="#4b5563">
+          We detected a new login to your Spentiva account. Here are the details:
+        </mj-text>
+
+        <!-- Login Details Box -->
+        <mj-section background-color="#f9fafb" border-radius="8px" padding="20px">
+          <mj-column>
+            <mj-text font-weight="600" color="#374151" padding-bottom="10px">
+              Login Details:
+            </mj-text>
+            <mj-text color="#6b7280" padding="5px 0">
+              <strong>Time:</strong> {{timestamp}}
+            </mj-text>
+            <mj-text color="#6b7280" padding="5px 0">
+              <strong>Device:</strong> {{device}}
+            </mj-text>
+          </mj-column>
+        </mj-section>
+
+        <mj-text color="#4b5563" padding-top="20px">
+          If this was you, you can safely ignore this email. If you don't recognize this activity, please secure your account immediately.
+        </mj-text>
+
+        <mj-button background-color="#ef4444" color="#ffffff" border-radius="6px" padding="20px 0" href="https://app.spentiva.com/settings/security">
+          Secure My Account
+        </mj-button>
+
+        <mj-text color="#6b7280" font-size="14px" padding-top="20px">
+          If the button doesn't work, copy and paste this link into your browser:<br/>
+          https://app.spentiva.com/settings/security
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#f4f4f4" padding="20px">
+      <mj-column>
+        <mj-text align="center" color="#9ca3af" font-size="12px">
+          © 2025 Spentiva. All rights reserved.<br/>
+          This is an automated security notification.
+        </mj-text>
+        <mj-text align="center" color="#9ca3af" font-size="12px">
+          Questions? Contact us at support@spentiva.com
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

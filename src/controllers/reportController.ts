@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import nodemailer from 'nodemailer';
 import { generateReportEmail } from '../templates/reportEmail';
 import Expense from '../models/Expense';
-import User from '../models/User';
+import { UserModel } from '../apis/auth/auth.models';
 import { AuthRequest } from '../middleware/auth';
 
 // Helper function to get date range
@@ -59,7 +59,7 @@ const getDateRange = (filter: string, startDate?: string, endDate?: string) => {
 // Get formatted date range string
 const getDateRangeString = (filter: string, start: Date, end: Date): string => {
   const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-  
+
   switch (filter) {
     case 'today':
       return 'Today';
@@ -141,7 +141,7 @@ export const downloadReport = async (req: AuthRequest, res: Response) => {
     const dateRangeString = getDateRangeString(filter as string, start, end);
     let csvContent = `Expense Report - ${dateRangeString}\n`;
     csvContent += `Generated on: ${new Date().toLocaleString('en-IN')}\n\n`;
-    
+
     csvContent += `Summary\n`;
     csvContent += `Total Expenses,₹${totalExpenses.toLocaleString('en-IN')}\n`;
     csvContent += `Average Expense,₹${Math.round(averageExpense).toLocaleString('en-IN')}\n`;
@@ -180,7 +180,7 @@ export const downloadReport = async (req: AuthRequest, res: Response) => {
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', `attachment; filename="expense-report-${filter}-${Date.now()}.csv"`);
     res.send(csvContent);
-    
+
     console.log('Report downloaded successfully');
   } catch (error) {
     console.error('Error generating report:', error);
