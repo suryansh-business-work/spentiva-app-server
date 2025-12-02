@@ -5,7 +5,7 @@ import config from '../config/env';
  * Authentication Middleware
  * Verifies JWT token and attaches user info to request
  */
-export const authenticateToken = (req: any, res: any, next: any) => {
+export const authenticateMiddleware = (req: any, res: any, next: any) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 

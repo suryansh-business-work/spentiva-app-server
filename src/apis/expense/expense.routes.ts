@@ -8,7 +8,7 @@ import {
   deleteExpenseController,
   chatController,
 } from './expense.controllers';
-import { authenticateToken } from '../../middleware/auth.middleware';
+import { authenticateMiddleware } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -17,10 +17,10 @@ const router = express.Router();
  */
 
 // POST /api/expenses/parse - Parse expense from natural language
-router.post('/parse', authenticateToken, parseExpenseController);
+router.post('/parse', authenticateMiddleware, parseExpenseController);
 
 // POST /api/expenses/chat - Chat with AI for expense tracking
-router.post('/chat', authenticateToken, chatController);
+router.post('/chat', authenticateMiddleware, chatController);
 
 // POST /api/expenses - Create a new expense
 router.post('/', createExpenseController);

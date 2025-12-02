@@ -5,7 +5,7 @@ import {
   createMessageController,
   deleteMessageController,
 } from './message.controllers';
-import { authenticateToken } from '../../middleware/auth.middleware';
+import { authenticateMiddleware } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -14,15 +14,15 @@ const router = express.Router();
  */
 
 // GET /api/messages - Get all messages with optional filtering
-router.get('/', authenticateToken, getAllMessagesController);
+router.get('/', authenticateMiddleware, getAllMessagesController);
 
 // GET /api/messages/count - Get message count
-router.get('/count', authenticateToken, getMessageCountController);
+router.get('/count', authenticateMiddleware, getMessageCountController);
 
 // POST /api/messages - Create a new message
-router.post('/', authenticateToken, createMessageController);
+router.post('/', authenticateMiddleware, createMessageController);
 
 // DELETE /api/messages/:id - Delete a message
-router.delete('/:id', authenticateToken, deleteMessageController);
+router.delete('/:id', authenticateMiddleware, deleteMessageController);
 
 export default router;

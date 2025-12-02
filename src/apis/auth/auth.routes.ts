@@ -24,7 +24,7 @@ import {
   UpdateProfileDto,
 } from './auth.validators';
 import { UserModel, OTPModel } from './auth.models';
-import { authenticateToken } from '../../middleware/auth.middleware';
+import { authenticateMiddleware } from '../../middleware/auth.middleware';
 import config from '../../config/env';
 
 const router = express.Router();
@@ -100,14 +100,19 @@ router.post(
  * @desc    Get current user profile
  * @access  Private
  */
-router.get('/me', authenticateToken, getMeController);
+router.get('/me', authenticateMiddleware, getMeController);
 
 /**
  * @route   PUT /api/auth/profile
  * @desc    Update user profile
  * @access  Private
  */
-router.put('/profile', authenticateToken, validateDto(UpdateProfileDto), updateProfileController);
+router.put(
+  '/profile',
+  authenticateMiddleware,
+  validateDto(UpdateProfileDto),
+  updateProfileController
+);
 
 /**
  * @route   POST /api/auth/profile-photo
@@ -116,7 +121,7 @@ router.put('/profile', authenticateToken, validateDto(UpdateProfileDto), updateP
  */
 router.post(
   '/profile-photo',
-  authenticateToken,
+  authenticateMiddleware,
   upload.single('photo'),
   uploadProfilePhotoController
 );
@@ -130,7 +135,7 @@ router.post(
  */
 router.post('/send-otp', async (req, res) => {
   try {
-    const { phone, type = 'phone' } = req.body;
+    const { phone } = req.body;
 
     // Treat 'phone' as identifier (could be email)
     const identifier = phone;

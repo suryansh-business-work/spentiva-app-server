@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { UserModel, OTPModel, IUser } from './auth.models';
+import { UserModel, OTPModel } from './auth.models';
 import emailService from '../../services/emailService';
 
 import config from '../../config/env';

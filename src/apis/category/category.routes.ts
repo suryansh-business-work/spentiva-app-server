@@ -7,7 +7,7 @@ import {
   updateCategoryController,
   deleteCategoryController,
 } from './category.controllers';
-import { authenticateToken } from '../../middleware/auth.middleware';
+import { authenticateMiddleware } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -19,18 +19,18 @@ const router = express.Router();
 router.get('/', getCategoriesController);
 
 // GET /api/categories/custom - Get custom categories from database
-router.get('/custom', authenticateToken, getAllCategoriesController);
+router.get('/custom', authenticateMiddleware, getAllCategoriesController);
 
 // POST /api/categories - Create a new custom category
-router.post('/', authenticateToken, createCategoryController);
+router.post('/', authenticateMiddleware, createCategoryController);
 
 // GET /api/categories/:id - Get a specific category
-router.get('/:id', authenticateToken, getCategoryByIdController);
+router.get('/:id', authenticateMiddleware, getCategoryByIdController);
 
 // PUT /api/categories/:id - Update a category
-router.put('/:id', authenticateToken, updateCategoryController);
+router.put('/:id', authenticateMiddleware, updateCategoryController);
 
 // DELETE /api/categories/:id - Delete a category
-router.delete('/:id', authenticateToken, deleteCategoryController);
+router.delete('/:id', authenticateMiddleware, deleteCategoryController);
 
 export default router;

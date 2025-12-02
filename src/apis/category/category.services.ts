@@ -7,8 +7,8 @@ export class CategoryService {
   /**
    * Get all categories with their subcategories
    */
-  static async getAllCategories(trackerId?: string) {
-    const query = trackerId ? { trackerId } : {};
+  static async getAllCategories(_userId?: string) {
+    const query = _userId ? { trackerId: _userId } : {}; // Assuming _userId is intended to replace trackerId
     const categories = await CategoryModel.find(query).sort({ createdAt: -1 });
     return categories;
   }
@@ -16,7 +16,7 @@ export class CategoryService {
   /**
    * Get a specific category by ID
    */
-  static async getCategoryById(categoryId: string, userId?: string) {
+  static async getCategoryById(categoryId: string) {
     const category = await CategoryModel.findById(categoryId);
     if (!category) {
       throw new Error('Category not found');

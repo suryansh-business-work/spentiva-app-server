@@ -1,6 +1,6 @@
 import categoryModels from '../category/category.models';
 import expenseModels from '../expense/expense.models';
-import TrackerModel, { ITracker } from './tracker.models';
+import TrackerModel from './tracker.models';
 
 /**
  * Tracker Service - Business logic for tracker operations

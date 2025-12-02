@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { errorResponse, successResponseArr } from '../../../utils/response-object';
 import imagekitService from './imagekit.service';
 

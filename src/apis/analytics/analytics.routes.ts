@@ -5,7 +5,6 @@ import {
   getByMonthController,
   getTotalController,
 } from './analytics.controllers';
-import { authenticateToken } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 

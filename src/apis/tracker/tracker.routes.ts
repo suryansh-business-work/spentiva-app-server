@@ -6,7 +6,7 @@ import {
   updateTrackerController,
   deleteTrackerController,
 } from './tracker.controllers';
-import { authenticateToken } from '../../middleware/auth.middleware';
+import { authenticateMiddleware } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -16,18 +16,18 @@ const router = express.Router();
  */
 
 // Get all trackers for authenticated user
-router.get('/trackers', authenticateToken, getAllTrackersController);
+router.get('/trackers', authenticateMiddleware, getAllTrackersController);
 
 // Create a new tracker
-router.post('/create/tracker', authenticateToken, createTrackerController);
+router.post('/create/tracker', authenticateMiddleware, createTrackerController);
 
 // Get a single tracker by ID
-router.get('/get/tracker/:id', authenticateToken, getTrackerByIdController);
+router.get('/get/tracker/:id', authenticateMiddleware, getTrackerByIdController);
 
 // Update a tracker
-router.put('/update/tracker/:id', authenticateToken, updateTrackerController);
+router.put('/update/tracker/:id', authenticateMiddleware, updateTrackerController);
 
 // Delete a tracker
-router.delete('/delete/tracker/:id', authenticateToken, deleteTrackerController);
+router.delete('/delete/tracker/:id', authenticateMiddleware, deleteTrackerController);
 
 export default router;

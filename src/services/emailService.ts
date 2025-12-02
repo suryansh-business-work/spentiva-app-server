@@ -27,7 +27,7 @@ console.log('📧 [EMAIL CONFIG] Host:', config?.SERVICES?.EMAIL?.NODEMAILER?.HO
 console.log('📧 [EMAIL CONFIG] Port:', config?.SERVICES?.EMAIL?.NODEMAILER?.PORT);
 console.log('📧 [EMAIL CONFIG] User:', config?.SERVICES?.EMAIL?.NODEMAILER?.USER);
 
-transporter.verify((error, success) => {
+transporter.verify(error => {
   if (error) {
     console.error('❌ [EMAIL CONFIG] SMTP connection failed:', error.message);
   } else {
@@ -54,11 +54,19 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
       html: options.html,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ [EMAIL] Email sent successfully:', info.messageId);
+    await new Promise<void>((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, _success: any) => {
+        if (error) {
+          console.error('❌ [EMAIL] Failed to send email:', error.message);
+          return reject(new Error(`Failed to send email: ${error.message}`));
+        }
+        console.log('✅ [EMAIL] Email sent successfully:', _success.messageId);
+        resolve();
+      });
+    });
   } catch (error: any) {
     console.error('❌ [EMAIL] Failed to send email:', error.message);
-    throw new Error(`Failed to send email: ${error.message}`);
+    throw error; // Re-throw the error caught from the promise
   }
 };
 

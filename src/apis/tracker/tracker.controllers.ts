@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import TrackerService from './tracker.services';
 import { successResponse, errorResponse, badRequestResponse } from '../../utils/response-object';
 

@@ -4,7 +4,7 @@ import {
   getTrackerUsageController,
   getTrackerLogsController,
 } from './usage.controllers';
-import { authenticateToken } from '../../middleware/auth.middleware';
+import { authenticateMiddleware } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -13,12 +13,12 @@ const router = express.Router();
  */
 
 // GET /api/usage/overall - Get overall usage statistics
-router.get('/overall', authenticateToken, getOverallUsageController);
+router.get('/overall', authenticateMiddleware, getOverallUsageController);
 
 // GET /api/usage/tracker/:trackerId - Get usage for a specific tracker
-router.get('/tracker/:trackerId', authenticateToken, getTrackerUsageController);
+router.get('/tracker/:trackerId', authenticateMiddleware, getTrackerUsageController);
 
 // GET /api/usage/tracker/:trackerId/logs - Get logs for a specific tracker
-router.get('/tracker/:trackerId/logs', authenticateToken, getTrackerLogsController);
+router.get('/tracker/:trackerId/logs', authenticateMiddleware, getTrackerLogsController);
 
 export default router;

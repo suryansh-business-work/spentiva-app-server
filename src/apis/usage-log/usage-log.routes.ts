@@ -4,7 +4,7 @@ import {
   createLogController,
   deleteOldLogsController,
 } from './usage-log.controllers';
-import { authenticateToken } from '../../middleware/auth.middleware';
+import { authenticateMiddleware } from '../../middleware/auth.middleware';
 
 const router = express.Router();
 
@@ -13,12 +13,12 @@ const router = express.Router();
  */
 
 // GET /api/usage-logs - Get all usage logs with optional filtering
-router.get('/', authenticateToken, getAllLogsController);
+router.get('/', authenticateMiddleware, getAllLogsController);
 
 // POST /api/usage-logs - Create a new usage log
-router.post('/', authenticateToken, createLogController);
+router.post('/', authenticateMiddleware, createLogController);
 
 // DELETE /api/usage-logs/cleanup - Delete old logs (maintenance)
-router.delete('/cleanup', authenticateToken, deleteOldLogsController);
+router.delete('/cleanup', authenticateMiddleware, deleteOldLogsController);
 
 export default router;

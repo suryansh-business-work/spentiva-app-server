@@ -71,7 +71,7 @@ app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
 // Global Error Handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
     // Handle JSON parse errors
     if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
         console.error('Bad JSON:', err.message);

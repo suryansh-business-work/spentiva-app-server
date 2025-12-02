@@ -82,7 +82,7 @@ app.listen(PORT, () => {
 });
 
 // Global Error Handler
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((err: any, req: any, res: any, _next: any) => {
   // Handle JSON parse errors
   if (err instanceof SyntaxError && 'status' in err && err.status === 400 && 'body' in err) {
     console.error('Bad JSON:', err.message);
