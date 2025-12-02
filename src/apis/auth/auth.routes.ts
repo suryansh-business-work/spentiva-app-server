@@ -26,7 +26,7 @@ import {
 import { UserModel, OTPModel } from './auth.models';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key-for-testing-only';
 
 // Configure multer for file uploads with memory storage (for ImageKit)
 const storage = multer.memoryStorage();
@@ -47,7 +47,7 @@ const upload = multer({
 });
 
 // Auth Middleware
-const authenticateToken = (req: any, res: any, next: any) => {
+export const authenticateToken = (req: any, res: any, next: any) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 

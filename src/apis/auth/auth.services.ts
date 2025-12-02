@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { UserModel, OTPModel, IUser } from './auth.models';
 import emailService from '../../services/emailService';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'test-jwt-secret-key-for-testing-only';
 
 /**
  * Auth Service - Business logic for authentication
