@@ -19,10 +19,10 @@ const router = express.Router();
 router.get('/', getCategoriesController);
 
 // GET /api/categories/custom - Get custom categories from database
-router.get('/custom', authenticateMiddleware, getAllCategoriesController);
+router.get('/all', authenticateMiddleware, getAllCategoriesController);
 
 // POST /api/categories - Create a new custom category
-router.post('/', authenticateMiddleware, createCategoryController);
+router.post('/create', authenticateMiddleware, createCategoryController);
 
 // GET /api/categories/:id - Get a specific category
 router.get('/:id', authenticateMiddleware, getCategoryByIdController);

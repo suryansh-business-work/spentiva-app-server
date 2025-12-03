@@ -8,8 +8,8 @@ export class ExpenseService {
   /**
    * Parse expense from natural language
    */
-  static async parseExpense(message: string) {
-    const parsed = await ExpenseParser.parseExpense(message);
+  static async parseExpense(message: string, trackerId?: string) {
+    const parsed = await ExpenseParser.parseExpense(message, trackerId);
     return parsed;
   }
 

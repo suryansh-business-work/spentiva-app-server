@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
@@ -67,8 +68,8 @@ app.use(
 app.use('/v1/api/auth', authRoutes);
 
 // Resource Routes
-app.use('/v1/api/categories', categoryRoutes);
-app.use('/v1/api/expenses', expenseRoutes);
+app.use('/v1/api/category', categoryRoutes);
+app.use('/v1/api/expense', expenseRoutes);
 app.use('/v1/api/messages', messageRoutes);
 app.use('/v1/api/trackers', trackerRoutes);
 app.use('/v1/api/usage', usageRoutes);

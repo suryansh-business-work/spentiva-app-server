@@ -1,40 +1,64 @@
-import { IsString, IsOptional, IsInt, Min } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsEnum, IsNumber } from 'class-validator';
+import { Type } from 'class-transformer';
 
-/**
- * Analytics Query DTO
- */
+export enum DateFilter {
+  TODAY = 'today',
+  YESTERDAY = 'yesterday',
+  LAST_7_DAYS = 'last7days',
+  THIS_MONTH = 'thisMonth',
+  LAST_MONTH = 'lastMonth',
+  THIS_YEAR = 'thisYear',
+  CUSTOM = 'custom',
+  ALL = 'all',
+}
+
 export class AnalyticsQueryDto {
-  @IsString()
+  @IsEnum(DateFilter)
   @IsOptional()
-  filter?: string;
+  filter?: DateFilter;
 
-  @IsString()
+  @IsDateString()
   @IsOptional()
   customStart?: string;
 
-  @IsString()
+  @IsDateString()
   @IsOptional()
   customEnd?: string;
 
   @IsString()
   @IsOptional()
+  trackerId?: string;
+
+  @IsString()
+  @IsOptional()
   categoryId?: string;
 
-  @IsString()
+  @IsNumber()
   @IsOptional()
-  trackerId?: string;
+  @Type(() => Number)
+  year?: number;
 }
 
-/**
- * Monthly Analytics Query DTO
- */
-export class MonthlyAnalyticsQueryDto {
-  @IsInt()
-  @Min(2000)
-  @IsOptional()
-  year?: number;
+export class SummaryStatsDto {
+  totalExpenses!: number;
+  transactionCount!: number;
+  averageExpense!: number;
+}
 
-  @IsString()
-  @IsOptional()
-  trackerId?: string;
+export class CategoryAnalyticsDto {
+  category!: string;
+  total!: number;
+  count!: number;
+}
+
+export class MonthlyAnalyticsDto {
+  month!: number;
+  total!: number;
+  count!: number;
+}
+
+export class SourceAnalyticsDto {
+  paymentMethod!: string;
+  total!: number;
+  count!: number;
 }

@@ -1,52 +1,43 @@
 import ExpenseModel from '../expense/expense.models';
-
-export interface DateRangeQuery {
-  startDate: Date;
-  endDate: Date;
-  categoryId?: string;
-  trackerId?: string;
-}
+import { AnalyticsQueryDto, DateFilter } from './analytics.validators';
 
 export class AnalyticsService {
   /**
    * Get date range based on filter
    */
-  static getDateRange(
-    filter: string,
-    customStart?: string,
-    customEnd?: string
-  ): { startDate: Date; endDate: Date } {
+  static getDateRange(query: AnalyticsQueryDto): { startDate: Date; endDate: Date } {
+    const { filter, customStart, customEnd } = query;
     const now = new Date();
     let startDate: Date;
     let endDate: Date = now;
 
     switch (filter) {
-      case 'today':
+      case DateFilter.TODAY:
         startDate = new Date(now.setHours(0, 0, 0, 0));
         endDate = new Date(now.setHours(23, 59, 59, 999));
         break;
-      case 'yesterday':
+      case DateFilter.YESTERDAY:
         startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 1);
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
         endDate.setHours(23, 59, 59, 999);
         break;
-      case 'last7days':
+      case DateFilter.LAST_7_DAYS:
         startDate = new Date(now);
         startDate.setDate(startDate.getDate() - 7);
         break;
-      case 'thisMonth':
+      case DateFilter.THIS_MONTH:
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
         break;
-      case 'lastMonth':
+      case DateFilter.LAST_MONTH:
         startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
         endDate = new Date(now.getFullYear(), now.getMonth(), 0);
         break;
-      case 'thisYear':
+      case DateFilter.THIS_YEAR:
         startDate = new Date(now.getFullYear(), 0, 1);
         break;
-      case 'custom':
+      case DateFilter.CUSTOM:
         if (customStart && customEnd) {
           startDate = new Date(customStart);
           endDate = new Date(customEnd);
@@ -55,6 +46,9 @@ export class AnalyticsService {
         }
         break;
       default:
+        // Default to all time (or a reasonable default like this month if preferred, but 'all' usually implies no start limit)
+        // However, for performance, let's default to this month if no filter is provided, or handle 'all' explicitly.
+        // Based on previous code, default was this month.
         startDate = new Date(now.getFullYear(), now.getMonth(), 1);
     }
 
@@ -62,22 +56,34 @@ export class AnalyticsService {
   }
 
   /**
-   * Get summary statistics
+   * Build match query from DTO and date range
    */
-  static async getSummaryStats(query: DateRangeQuery) {
-    const { startDate, endDate, categoryId, trackerId } = query;
-
+  private static buildMatchQuery(queryDto: AnalyticsQueryDto, dateRange: { startDate: Date; endDate: Date }) {
     const matchQuery: any = {
-      timestamp: { $gte: startDate, $lte: endDate },
+      timestamp: { $gte: dateRange.startDate, $lte: dateRange.endDate },
     };
 
-    if (categoryId) {
-      matchQuery.categoryId = categoryId;
+    if (queryDto.trackerId) {
+      matchQuery.trackerId = queryDto.trackerId;
+      console.log('[Analytics] Filtering by trackerId:', queryDto.trackerId);
+    } else {
+      console.log('[Analytics] No trackerId provided, returning all trackers');
     }
 
-    if (trackerId) {
-      matchQuery.trackerId = trackerId;
+    if (queryDto.categoryId) {
+      matchQuery.categoryId = queryDto.categoryId;
     }
+
+    console.log('[Analytics] Final match query:', matchQuery);
+    return matchQuery;
+  }
+
+  /**
+   * Get summary statistics
+   */
+  static async getSummaryStats(queryDto: AnalyticsQueryDto) {
+    const dateRange = this.getDateRange(queryDto);
+    const matchQuery = this.buildMatchQuery(queryDto, dateRange);
 
     const stats = await ExpenseModel.aggregate([
       { $match: matchQuery },
@@ -105,16 +111,9 @@ export class AnalyticsService {
   /**
    * Get expenses grouped by category
    */
-  static async getExpensesByCategory(query: DateRangeQuery) {
-    const { startDate, endDate, trackerId } = query;
-
-    const matchQuery: any = {
-      timestamp: { $gte: startDate, $lte: endDate },
-    };
-
-    if (trackerId) {
-      matchQuery.trackerId = trackerId;
-    }
+  static async getExpensesByCategory(queryDto: AnalyticsQueryDto) {
+    const dateRange = this.getDateRange(queryDto);
+    const matchQuery = this.buildMatchQuery(queryDto, dateRange);
 
     const categoryData = await ExpenseModel.aggregate([
       { $match: matchQuery },
@@ -142,8 +141,8 @@ export class AnalyticsService {
   /**
    * Get expenses grouped by month
    */
-  static async getExpensesByMonth(year?: number, trackerId?: string) {
-    const targetYear = year || new Date().getFullYear();
+  static async getExpensesByMonth(queryDto: AnalyticsQueryDto) {
+    const targetYear = queryDto.year || new Date().getFullYear();
     const startDate = new Date(targetYear, 0, 1);
     const endDate = new Date(targetYear, 11, 31, 23, 59, 59);
 
@@ -151,8 +150,8 @@ export class AnalyticsService {
       timestamp: { $gte: startDate, $lte: endDate },
     };
 
-    if (trackerId) {
-      matchQuery.trackerId = trackerId;
+    if (queryDto.trackerId) {
+      matchQuery.trackerId = queryDto.trackerId;
     }
 
     const monthlyData = await ExpenseModel.aggregate([
@@ -179,17 +178,64 @@ export class AnalyticsService {
   }
 
   /**
+   * Get expenses grouped by payment method (source)
+   */
+  static async getExpensesBySource(queryDto: AnalyticsQueryDto) {
+    const dateRange = this.getDateRange(queryDto);
+    const matchQuery = this.buildMatchQuery(queryDto, dateRange);
+
+    const sourceData = await ExpenseModel.aggregate([
+      { $match: matchQuery },
+      {
+        $group: {
+          _id: '$paymentMethod',
+          total: { $sum: '$amount' },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          paymentMethod: '$_id',
+          total: 1,
+          count: 1,
+        },
+      },
+      { $sort: { total: -1 } },
+    ]);
+
+    return sourceData;
+  }
+
+  /**
    * Get total expenses for a period
    */
-  static async getTotalExpenses(query: DateRangeQuery) {
-    const { startDate, endDate, trackerId } = query;
+  static async getTotalExpenses(queryDto: AnalyticsQueryDto) {
+    // For total, we might want all time if no filter is specified, 
+    // but consistent behavior with other endpoints is safer.
+    // If specific behavior is needed for 'total' endpoint, we can adjust.
+    // For now, using the same date range logic.
+
+    // Override filter to 'all' if not provided for total? 
+    // The previous implementation used 0 to now.
+    // Let's respect the filter if provided, otherwise default to all time for this specific method if that was the intent.
+    // But the previous code: startDate: new Date(0), endDate: new Date()
+
+    let startDate = new Date(0);
+    let endDate = new Date();
+
+    if (queryDto.filter) {
+      const range = this.getDateRange(queryDto);
+      startDate = range.startDate;
+      endDate = range.endDate;
+    }
 
     const matchQuery: any = {
       timestamp: { $gte: startDate, $lte: endDate },
     };
 
-    if (trackerId) {
-      matchQuery.trackerId = trackerId;
+    if (queryDto.trackerId) {
+      matchQuery.trackerId = queryDto.trackerId;
     }
 
     const result = await ExpenseModel.aggregate([

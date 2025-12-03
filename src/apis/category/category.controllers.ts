@@ -2,6 +2,12 @@ import { Response } from 'express';
 import CategoryService from './category.services';
 import { successResponse, errorResponse, badRequestResponse } from '../../utils/response-object';
 import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from '../../config/categories';
+import {
+  CreateCategoryDto,
+  UpdateCategoryDto,
+  GetAllCategoriesQueryDto,
+  CategoryResponseDto,
+} from './category.validators';
 
 /**
  * Category Controllers - Request handlers using response-object.ts
@@ -31,8 +37,8 @@ export const getCategoriesController = async (req: any, res: Response) => {
  */
 export const getAllCategoriesController = async (req: any, res: Response) => {
   try {
-    const { trackerId } = req.query;
-    const categories = await CategoryService.getAllCategories(trackerId as string);
+    const queryDto: GetAllCategoriesQueryDto = req.query;
+    const categories = await CategoryService.getAllCategories(queryDto.trackerId);
 
     return successResponse(res, { categories }, 'Custom categories retrieved successfully');
   } catch (error: any) {
@@ -46,24 +52,23 @@ export const getAllCategoriesController = async (req: any, res: Response) => {
  */
 export const createCategoryController = async (req: any, res: Response) => {
   try {
-    const { trackerId, name, subcategories } = req.body;
+    const createDto: CreateCategoryDto = req.body;
 
-    if (!trackerId || !name) {
+    if (!createDto.trackerId || !createDto.name) {
       return badRequestResponse(res, null, 'Missing required fields: trackerId, name');
     }
 
-    const category = await CategoryService.createCategory(trackerId, name, subcategories || []);
+    const category = await CategoryService.createCategory(
+      createDto.trackerId,
+      createDto.name,
+      createDto.subcategories || []
+    );
+
+    const responseDto = new CategoryResponseDto(category);
 
     return successResponse(
       res,
-      {
-        category: {
-          id: category._id,
-          name: category.name,
-          subcategories: category.subcategories,
-          trackerId: category.trackerId,
-        },
-      },
+      { category: responseDto },
       'Category created successfully'
     );
   } catch (error: any) {
@@ -96,11 +101,13 @@ export const getCategoryByIdController = async (req: any, res: Response) => {
 export const updateCategoryController = async (req: any, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, subcategories } = req.body;
+    const updateDto: UpdateCategoryDto = req.body;
 
-    const category = await CategoryService.updateCategory(id, { name, subcategories });
+    const category = await CategoryService.updateCategory(id, updateDto);
 
-    return successResponse(res, { category }, 'Category updated successfully');
+    const responseDto = new CategoryResponseDto(category);
+
+    return successResponse(res, { category: responseDto }, 'Category updated successfully');
   } catch (error: any) {
     console.error('Error updating category:', error);
     if (error.message === 'Category not found') {

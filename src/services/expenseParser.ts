@@ -6,10 +6,11 @@ import config from '../config/env';
 const openai = config.OPENAI_API_KEY ? new OpenAI({ apiKey: config.OPENAI_API_KEY }) : null;
 
 export class ExpenseParser {
-  private static buildSystemPrompt(): string {
-    const categories = Object.values(EXPENSE_CATEGORIES)
+  private static buildSystemPrompt(categories: any[]): string {
+    const categoriesList = categories
       .map(cat => {
-        return `${cat.name}: ${cat.subcategories.join(', ')}`;
+        const subcats = cat.subcategories?.map((s: any) => s.name).join(', ') || '';
+        return `${cat.name}: ${subcats}`;
       })
       .join('\n');
 
@@ -21,7 +22,7 @@ export class ExpenseParser {
 5. Description (optional)
 
 Available categories and subcategories:
-${categories}
+${categoriesList}
 
 Examples:
 - "spend food 50 from credit card" → {amount: 50, category: "Food & Dining", subcategory: "Foods", paymentMethod: "Credit Card"}
@@ -37,13 +38,21 @@ Respond ONLY with a JSON object in this exact format:
   "description": "string (optional)"
 }
 
-If you cannot parse the message, respond with:
+If the category or subcategory is NOT in the provided list, respond with:
+{
+  "error": "I was unable to find this category in your category list. Kindly update the categories before logging this item."
+}
+
+If you cannot parse the message for other reasons, respond with:
 {
   "error": "Could not understand the expense. Please provide amount, category, and payment method."
 }`;
   }
 
-  static async parseExpense(userMessage: string): Promise<ParsedExpense | { error: string }> {
+  static async parseExpense(
+    userMessage: string,
+    trackerId?: string
+  ): Promise<ParsedExpense | { error: string }> {
     if (!openai) {
       return {
         error: 'OpenAI API key not configured. Cannot parse expense.',
@@ -51,10 +60,26 @@ If you cannot parse the message, respond with:
     }
 
     try {
+      // Fetch categories dynamically if trackerId is provided
+      let categories: any[] = [];
+      if (trackerId) {
+        const { CategoryService } = await import('../apis/category/category.services');
+        categories = await CategoryService.getAllCategories(trackerId);
+      } else {
+        // Fallback to default categories if no trackerId (though trackerId should be required)
+        categories = Object.values(EXPENSE_CATEGORIES);
+      }
+
+      if (!categories || categories.length === 0) {
+        return {
+          error: 'No categories found for this tracker. Please add categories first.',
+        };
+      }
+
       const completion = await openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: this.buildSystemPrompt() },
+          { role: 'system', content: this.buildSystemPrompt(categories) },
           { role: 'user', content: userMessage },
         ],
         temperature: 0.3,
@@ -77,19 +102,20 @@ If you cannot parse the message, respond with:
         return { error: 'Missing required fields in expense' };
       }
 
-      // Find the category ID
-      const categoryEntry = Object.values(EXPENSE_CATEGORIES).find(
-        cat => cat.name === parsed.category
-      );
+      // Find the category ID from the fetched categories
+      const categoryEntry = categories.find(cat => cat.name === parsed.category);
 
       if (!categoryEntry) {
-        return { error: 'Invalid category' };
+        return {
+          error:
+            'I was unable to find this category in your category list. Kindly update the categories before logging this item.',
+        };
       }
 
       // Add categoryId and timestamp
       const result: ParsedExpense = {
         ...parsed,
-        categoryId: categoryEntry.id,
+        categoryId: categoryEntry._id || categoryEntry.id, // Handle both _id (DB) and id (Config)
         timestamp: new Date(),
       };
 

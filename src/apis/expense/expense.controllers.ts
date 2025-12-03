@@ -12,18 +12,10 @@ import TrackerModel from '../tracker/tracker.models';
  */
 export const parseExpenseController = async (req: any, res: Response) => {
   try {
-    const { message, trackerId } = req.body;
+    const { input, trackerId } = req.body;
 
-    console.log('[Parse Expense] Request received:', {
-      hasMessage: !!message,
-      hasTrackerId: !!trackerId,
-      hasUserId: !!req.user?.userId,
-      trackerId,
-      userId: req.user?.userId,
-    });
-
-    if (!message) {
-      return badRequestResponse(res, null, 'Message is required');
+    if (!input) {
+      return badRequestResponse(res, null, 'User input is required');
     }
 
     if (!trackerId) {
@@ -55,10 +47,10 @@ export const parseExpenseController = async (req: any, res: Response) => {
     if (trackerSnapshot) {
       try {
         const { encode } = await import('gpt-tokenizer');
-        const userTokens = encode(message).length;
+        const userTokens = encode(input).length;
 
         const { logUsage } = await import('../usage-log/usage-log.services');
-        await logUsage(req.user.userId, trackerSnapshot, 'user', message, userTokens);
+        await logUsage(req.user.userId, trackerSnapshot, 'user', input, userTokens);
         console.log('[Parse Expense] User message logged with snapshot');
       } catch (logError) {
         console.error('[Parse Expense] Error logging user message:', logError);
@@ -66,7 +58,7 @@ export const parseExpenseController = async (req: any, res: Response) => {
       }
     }
 
-    const parsed = await ExpenseService.parseExpense(message);
+    const parsed = await ExpenseService.parseExpense(input, trackerId);
 
     // Log AI response with tracker snapshot
     if (trackerSnapshot && !('error' in parsed)) {

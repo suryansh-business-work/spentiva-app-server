@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("reflect-metadata");
 const dotenv_1 = __importDefault(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
@@ -57,8 +58,8 @@ app.use('/api/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.de
 // Authentication
 app.use('/v1/api/auth', auth_routes_1.default);
 // Resource Routes
-app.use('/v1/api/categories', category_routes_1.default);
-app.use('/v1/api/expenses', expense_routes_1.default);
+app.use('/v1/api/category', category_routes_1.default);
+app.use('/v1/api/expense', expense_routes_1.default);
 app.use('/v1/api/messages', message_routes_1.default);
 app.use('/v1/api/trackers', tracker_routes_1.default);
 app.use('/v1/api/usage', usage_routes_1.default);
@@ -76,7 +77,7 @@ app.get('/', (req, res) => {
 // Analytics
 app.use('/v1/api/analytics', analytics_routes_1.default);
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Spentiva Server is running on http://localhost:${PORT}`);
 });
 // Global Error Handler
 app.use((err, _req, res, _next) => {
