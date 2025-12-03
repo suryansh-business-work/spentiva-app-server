@@ -52,7 +52,7 @@ If you cannot parse the message for other reasons, respond with:
   static async parseExpense(
     userMessage: string,
     trackerId?: string
-  ): Promise<ParsedExpense | { error: string }> {
+  ): Promise<ParsedExpense | { error: string; usage?: any }> {
     if (!openai) {
       return {
         error: 'OpenAI API key not configured. Cannot parse expense.',
@@ -91,15 +91,23 @@ If you cannot parse the message for other reasons, respond with:
         return { error: 'No response from AI' };
       }
 
+      // Get actual token usage from OpenAI
+      const usage = completion.usage;
+      console.log('[ParseExpense] OpenAI Token Usage:', {
+        prompt_tokens: usage?.prompt_tokens,
+        completion_tokens: usage?.completion_tokens,
+        total_tokens: usage?.total_tokens,
+      });
+
       const parsed = JSON.parse(response);
 
       if (parsed.error) {
-        return parsed;
+        return { ...parsed, usage };
       }
 
       // Validate the parsed expense
       if (!parsed.amount || !parsed.category || !parsed.subcategory || !parsed.paymentMethod) {
-        return { error: 'Missing required fields in expense' };
+        return { error: 'Missing required fields in expense', usage };
       }
 
       // Find the category ID from the fetched categories
@@ -109,14 +117,16 @@ If you cannot parse the message for other reasons, respond with:
         return {
           error:
             'I was unable to find this category in your category list. Kindly update the categories before logging this item.',
+          usage,
         };
       }
 
-      // Add categoryId and timestamp
-      const result: ParsedExpense = {
+      // Add categoryId, timestamp, and token usage
+      const result: ParsedExpense & { usage?: any } = {
         ...parsed,
         categoryId: categoryEntry._id || categoryEntry.id, // Handle both _id (DB) and id (Config)
         timestamp: new Date(),
+        usage, // Include actual OpenAI token usage
       };
 
       return result;
@@ -126,9 +136,14 @@ If you cannot parse the message for other reasons, respond with:
     }
   }
 
-  static async getChatResponse(userMessage: string, conversationHistory: any[]): Promise<string> {
+  static async getChatResponse(
+    userMessage: string,
+    conversationHistory: any[]
+  ): Promise<{ response: string; usage?: any }> {
     if (!openai) {
-      return 'OpenAI API key not configured. Cannot provide chat responses.';
+      return {
+        response: 'OpenAI API key not configured. Cannot provide chat responses.',
+      };
     }
 
     try {
@@ -149,10 +164,24 @@ If you cannot parse the message for other reasons, respond with:
         max_tokens: 150,
       });
 
-      return completion.choices[0]?.message?.content || "I'm here to help track your expenses!";
+      // Get actual token usage from OpenAI
+      const usage = completion.usage;
+      console.log('[ChatResponse] OpenAI Token Usage:', {
+        prompt_tokens: usage?.prompt_tokens,
+        completion_tokens: usage?.completion_tokens,
+        total_tokens: usage?.total_tokens,
+      });
+
+      return {
+        response:
+          completion.choices[0]?.message?.content || "I'm here to help track your expenses!",
+        usage,
+      };
     } catch (error) {
       console.error('Error getting chat response:', error);
-      return "Sorry, I'm having trouble responding right now.";
+      return {
+        response: "Sorry, I'm having trouble responding right now.",
+      };
     }
   }
 }

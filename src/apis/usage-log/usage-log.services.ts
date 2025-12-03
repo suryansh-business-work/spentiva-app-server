@@ -1,5 +1,6 @@
 import UsageLogModel from './usage-log.models';
 import mongoose from 'mongoose';
+import UsageService from '../usage/usage.services';
 
 /**
  * UsageLog Service - Business logic for usage logging
@@ -55,6 +56,15 @@ export class UsageLogService {
       timestamp: timestamp || new Date(),
     });
 
+    // Update daily usage statistics
+    await UsageService.updateDailyUsage(
+      userId,
+      trackerSnapshot,
+      messageRole,
+      tokenCount || 0,
+      timestamp || new Date()
+    );
+
     return log;
   }
 
@@ -72,6 +82,151 @@ export class UsageLogService {
     return {
       message: `Deleted ${result.deletedCount} logs older than ${daysOld} days`,
       deletedCount: result.deletedCount,
+    };
+  }
+
+  /**
+   * Get paginated logs for a specific tracker
+   */
+  static async getTrackerLogsPaginated(
+    userId: string,
+    trackerId: string,
+    limit: number = 100,
+    offset: number = 0
+  ) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    console.log('[UsageLog Service] Fetching tracker logs:', {
+      userId,
+      trackerId,
+      limit,
+      offset,
+    });
+
+    // Get total count
+    const totalCount = await UsageLogModel.countDocuments({
+      userId: userObjectId,
+      'trackerSnapshot.trackerId': trackerId,
+    });
+
+    // Get paginated logs
+    const logs = await UsageLogModel.find({
+      userId: userObjectId,
+      'trackerSnapshot.trackerId': trackerId,
+    })
+      .sort({ timestamp: -1 })
+      .skip(offset)
+      .limit(limit)
+      .select('messageRole messageContent tokenCount timestamp trackerSnapshot')
+      .lean();
+
+    return {
+      totalCount,
+      limit,
+      offset,
+      hasMore: totalCount > offset + limit,
+      logs: logs.map(log => ({
+        _id: log._id,
+        role: log.messageRole,
+        content: log.messageContent,
+        tokenCount: log.tokenCount,
+        timestamp: log.timestamp,
+        tracker: {
+          trackerId: log.trackerSnapshot.trackerId,
+          trackerName: log.trackerSnapshot.trackerName,
+          trackerType: log.trackerSnapshot.trackerType,
+          isDeleted: log.trackerSnapshot.isDeleted || false,
+        },
+      })),
+    };
+  }
+
+  /**
+   * Get recent messages for a specific tracker
+   */
+  static async getRecentMessagesForTracker(userId: string, trackerId: string, limit: number = 100) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    console.log('[UsageLog Service] Fetching recent messages:', {
+      userId,
+      trackerId,
+      limit,
+    });
+
+    const messages = await UsageLogModel.find({
+      userId: userObjectId,
+      'trackerSnapshot.trackerId': trackerId,
+    })
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .select('messageRole messageContent tokenCount timestamp')
+      .lean();
+
+    return messages.map(msg => ({
+      _id: msg._id,
+      role: msg.messageRole,
+      content: msg.messageContent,
+      tokenCount: msg.tokenCount,
+      timestamp: msg.timestamp,
+    }));
+  }
+
+  /**
+   * Delete all usage logs for a specific tracker
+   */
+  static async deleteLogsByTracker(userId: string, trackerId: string) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    console.log('[UsageLog Service] Deleting logs for tracker:', {
+      userId,
+      trackerId,
+    });
+
+    // Delete from UsageLog collection
+    const usageLogResult = await UsageLogModel.deleteMany({
+      userId: userObjectId,
+      'trackerSnapshot.trackerId': trackerId,
+    });
+
+    // Delete from Usage collection (daily aggregates)
+    const UsageModel = (await import('../usage/usage.models')).default;
+    const usageResult = await UsageModel.deleteMany({
+      userId: userObjectId,
+      'trackerSnapshot.trackerId': trackerId,
+    });
+
+    return {
+      message: `Deleted all logs for tracker ${trackerId}`,
+      usageLogsDeleted: usageLogResult.deletedCount,
+      dailyUsageDeleted: usageResult.deletedCount,
+      totalDeleted: usageLogResult.deletedCount + usageResult.deletedCount,
+    };
+  }
+
+  /**
+   * Delete ALL usage logs for a user (all trackers)
+   */
+  static async deleteLogsByUser(userId: string) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    console.log('[UsageLog Service] Deleting ALL logs for user:', userId);
+
+    // Delete from UsageLog collection
+    const usageLogResult = await UsageLogModel.deleteMany({
+      userId: userObjectId,
+    });
+
+    // Delete from Usage collection (daily aggregates)
+    const UsageModel = (await import('../usage/usage.models')).default;
+    const usageResult = await UsageModel.deleteMany({
+      userId: userObjectId,
+    });
+
+    return {
+      message: `Deleted all logs for user ${userId}`,
+      usageLogsDeleted: usageLogResult.deletedCount,
+      dailyUsageDeleted: usageResult.deletedCount,
+      totalDeleted: usageLogResult.deletedCount + usageResult.deletedCount,
     };
   }
 }

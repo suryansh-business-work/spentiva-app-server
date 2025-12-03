@@ -13,7 +13,6 @@ import trackerRoutes from './apis/tracker/tracker.routes';
 
 import categoryRoutes from './apis/category/category.routes';
 import expenseRoutes from './apis/expense/expense.routes';
-import messageRoutes from './apis/message/message.routes';
 import usageRoutes from './apis/usage/usage.routes';
 import usageLogRoutes from './apis/usage-log/usage-log.routes';
 import imagekitUploadRoutes from './apis/file-upload/imagekit-file-upload/imagekit.routes';
@@ -70,7 +69,6 @@ app.use('/v1/api/auth', authRoutes);
 // Resource Routes
 app.use('/v1/api/category', categoryRoutes);
 app.use('/v1/api/expense', expenseRoutes);
-app.use('/v1/api/messages', messageRoutes);
 app.use('/v1/api/trackers', trackerRoutes);
 app.use('/v1/api/usage', usageRoutes);
 app.use('/v1/api/usage-logs', usageLogRoutes);

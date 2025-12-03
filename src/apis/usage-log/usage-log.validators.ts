@@ -1,41 +1,18 @@
-import {
-  IsString,
-  IsEnum,
-  IsNumber,
-  IsOptional,
-  IsNotEmpty,
-  IsDateString,
-  IsObject,
-  ValidateNested,
-} from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsObject, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
- * Tracker Snapshot DTO
+ * Query DTO for fetching usage logs
  */
-export class TrackerSnapshotDto {
+export class GetUsageLogsQueryDto {
   @IsString()
-  @IsNotEmpty()
-  trackerId!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  trackerName!: string;
-
-  @IsString()
-  @IsEnum(['business', 'personal'])
-  trackerType!: string;
-
   @IsOptional()
-  isDeleted?: boolean;
+  trackerId?: string;
 
-  @IsDateString()
+  @IsNumber()
   @IsOptional()
-  deletedAt?: string;
-
-  @IsDateString()
-  @IsOptional()
-  modifiedAt?: string;
+  @Type(() => Number)
+  limit?: number;
 }
 
 /**
@@ -43,22 +20,34 @@ export class TrackerSnapshotDto {
  */
 export class CreateUsageLogDto {
   @IsObject()
-  @ValidateNested()
-  @Type(() => TrackerSnapshotDto)
-  trackerSnapshot!: TrackerSnapshotDto;
+  trackerSnapshot!: {
+    trackerId: string;
+    trackerName: string;
+    trackerType: string;
+    isDeleted?: boolean;
+    deletedAt?: Date;
+  };
 
-  @IsEnum(['user', 'assistant'])
+  @IsString()
+  @IsIn(['user', 'assistant'], { message: 'messageRole must be either "user" or "assistant"' })
   messageRole!: 'user' | 'assistant';
 
   @IsString()
-  @IsNotEmpty()
   messageContent!: string;
 
   @IsNumber()
-  @IsOptional()
-  tokenCount?: number;
+  tokenCount!: number;
 
-  @IsDateString()
   @IsOptional()
-  timestamp?: string;
+  timestamp?: Date;
+}
+
+/**
+ * Delete Old Logs Query DTO
+ */
+export class DeleteOldLogsQueryDto {
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  daysOld?: number;
 }

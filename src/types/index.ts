@@ -24,4 +24,10 @@ export interface ParsedExpense {
   paymentMethod: string;
   description?: string;
   timestamp?: Date;
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  };
 }
+

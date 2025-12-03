@@ -3,6 +3,8 @@ import {
   getAllLogsController,
   createLogController,
   deleteOldLogsController,
+  deleteLogsByTrackerController,
+  deleteLogsByUserController,
 } from './usage-log.controllers';
 import { authenticateMiddleware } from '../../middleware/auth.middleware';
 
@@ -20,5 +22,11 @@ router.post('/', authenticateMiddleware, createLogController);
 
 // DELETE /api/usage-logs/cleanup - Delete old logs (maintenance)
 router.delete('/cleanup', authenticateMiddleware, deleteOldLogsController);
+
+// DELETE /api/usage-logs/tracker/:trackerId - Delete all logs for a specific tracker
+router.delete('/tracker/:trackerId', authenticateMiddleware, deleteLogsByTrackerController);
+
+// DELETE /api/usage-logs/user - Delete ALL logs for the authenticated user
+router.delete('/user', authenticateMiddleware, deleteLogsByUserController);
 
 export default router;

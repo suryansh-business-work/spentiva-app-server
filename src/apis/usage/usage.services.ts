@@ -1,5 +1,5 @@
 import UsageModel from './usage.models';
-import UsageLogModel from '../../apis/usage-log/usage-log.models';
+import UsageLogService from '../../apis/usage-log/usage-log.services';
 import mongoose from 'mongoose';
 import TrackerModel from '../tracker/tracker.models';
 
@@ -189,15 +189,12 @@ export class UsageService {
       },
     ]);
 
-    // Get recent messages (from UsageLog)
-    const messages = await UsageLogModel.find({
-      userId: userObjectId,
-      'trackerSnapshot.trackerId': trackerId,
-    })
-      .sort({ timestamp: -1 })
-      .limit(100)
-      .select('messageRole messageContent tokenCount timestamp')
-      .lean();
+    // Get recent messages (from UsageLog service)
+    const messages = await UsageLogService.getRecentMessagesForTracker(
+      userId,
+      trackerId,
+      100
+    );
 
     const stats = trackerStats[0];
     return {
@@ -215,13 +212,7 @@ export class UsageService {
         aiMessages: stats.aiMessages,
       },
       dailyUsage,
-      messages: messages.map(msg => ({
-        _id: msg._id,
-        role: msg.messageRole,
-        content: msg.messageContent,
-        tokenCount: msg.tokenCount,
-        timestamp: msg.timestamp,
-      })),
+      messages,
     };
   }
 
@@ -234,51 +225,213 @@ export class UsageService {
     limit: number = 100,
     offset: number = 0
   ) {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
-
-    console.log('[Tracker Logs] Fetching for:', {
+    console.log('[Usage Service] Delegating to UsageLogService for tracker logs:', {
       userId,
       trackerId,
       limit,
       offset,
     });
 
-    // Get total count
-    const totalCount = await UsageLogModel.countDocuments({
-      userId: userObjectId,
-      'trackerSnapshot.trackerId': trackerId,
-    });
+    // Delegate to UsageLogService for proper service layering
+    return await UsageLogService.getTrackerLogsPaginated(userId, trackerId, limit, offset);
+  }
 
-    // Get paginated logs
-    const logs = await UsageLogModel.find({
-      userId: userObjectId,
-      'trackerSnapshot.trackerId': trackerId,
-    })
-      .sort({ timestamp: -1 })
-      .skip(offset)
-      .limit(limit)
-      .select('messageRole messageContent tokenCount timestamp trackerSnapshot')
-      .lean();
+  /**
+   * Get overall usage graphs for a user (last 30 days)
+   */
+  static async getOverallGraphs(userId: string) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    console.log('[Overall Graphs] Fetching for user:', userId);
+
+    // Daily usage over last 30 days
+    const dailyUsage = await UsageModel.aggregate([
+      {
+        $match: {
+          userId: userObjectId,
+          date: { $gte: thirtyDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          messages: { $sum: '$totalMessages' },
+          tokens: { $sum: '$totalTokens' },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          label: { $dateToString: { format: '%Y-%m-%d', date: '$_id' } },
+          messages: 1,
+          tokens: 1,
+        },
+      },
+    ]);
+
+    // Usage by tracker type
+    const byTrackerType = await UsageModel.aggregate([
+      {
+        $match: { userId: userObjectId },
+      },
+      {
+        $group: {
+          _id: '$trackerSnapshot.trackerType',
+          count: { $sum: '$totalMessages' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          category: '$_id',
+          count: 1,
+        },
+      },
+    ]);
+
+    // Calculate percentages
+    const totalMessages = byTrackerType.reduce((sum, item) => sum + item.count, 0);
+    const byTrackerTypeWithPercentage = byTrackerType.map(item => ({
+      category: item.category || 'Unknown',
+      count: item.count,
+      percentage: totalMessages > 0 ? Math.round((item.count / totalMessages) * 100) : 0,
+    }));
 
     return {
-      totalCount,
-      limit,
-      offset,
-      hasMore: totalCount > offset + limit,
-      logs: logs.map(log => ({
-        _id: log._id,
-        role: log.messageRole,
-        content: log.messageContent,
-        tokenCount: log.tokenCount,
-        timestamp: log.timestamp,
-        tracker: {
-          trackerId: log.trackerSnapshot.trackerId,
-          trackerName: log.trackerSnapshot.trackerName,
-          trackerType: log.trackerSnapshot.trackerType,
-          isDeleted: log.trackerSnapshot.isDeleted || false,
-        },
-      })),
+      dailyUsage,
+      byTrackerType: byTrackerTypeWithPercentage,
     };
+  }
+
+  /**
+   * Get tracker-specific usage graphs
+   */
+  static async getTrackerGraphs(userId: string, trackerId: string) {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+
+    console.log('[Tracker Graphs] Fetching for:', { userId, trackerId });
+
+    // Daily usage for this tracker (last 30 days)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const dailyUsage = await UsageModel.aggregate([
+      {
+        $match: {
+          userId: userObjectId,
+          'trackerSnapshot.trackerId': trackerId,
+          date: { $gte: thirtyDaysAgo },
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          messages: { $sum: '$totalMessages' },
+          tokens: { $sum: '$totalTokens' },
+        },
+      },
+      {
+        $sort: { _id: 1 },
+      },
+      {
+        $project: {
+          _id: 0,
+          label: { $dateToString: { format: '%Y-%m-%d', date: '$_id' } },
+          messages: 1,
+          tokens: 1,
+        },
+      },
+    ]);
+
+    // Message type distribution (user vs AI)
+    const messageDistribution = await UsageModel.aggregate([
+      {
+        $match: {
+          userId: userObjectId,
+          'trackerSnapshot.trackerId': trackerId,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          userMessages: { $sum: '$userMessages' },
+          aiMessages: { $sum: '$aiMessages' },
+        },
+      },
+    ]);
+
+    const distribution = messageDistribution[0] || { userMessages: 0, aiMessages: 0 };
+    const totalMessages = distribution.userMessages + distribution.aiMessages;
+
+    const messageTypeDistribution = [
+      {
+        category: 'User Messages',
+        count: distribution.userMessages,
+        percentage: totalMessages > 0 ? Math.round((distribution.userMessages / totalMessages) * 100) : 0,
+      },
+      {
+        category: 'AI Messages',
+        count: distribution.aiMessages,
+        percentage: totalMessages > 0 ? Math.round((distribution.aiMessages / totalMessages) * 100) : 0,
+      },
+    ];
+
+    return {
+      dailyUsage,
+      messageTypeDistribution,
+    };
+  }
+
+  /**
+   * Update daily usage statistics
+   */
+  static async updateDailyUsage(
+    userId: string,
+    trackerSnapshot: {
+      trackerId: string;
+      trackerName: string;
+      trackerType: string;
+      isDeleted?: boolean;
+      deletedAt?: Date;
+      modifiedAt?: Date;
+    },
+    messageRole: 'user' | 'assistant',
+    tokenCount: number,
+    timestamp: Date
+  ) {
+    const date = new Date(timestamp);
+    date.setHours(0, 0, 0, 0);
+
+    const update: any = {
+      $inc: {
+        totalMessages: 1,
+        totalTokens: tokenCount,
+      },
+      $set: {
+        trackerSnapshot, // Update snapshot in case it changed
+      },
+    };
+
+    if (messageRole === 'user') {
+      update.$inc.userMessages = 1;
+    } else {
+      update.$inc.aiMessages = 1;
+    }
+
+    await UsageModel.findOneAndUpdate(
+      {
+        userId: new mongoose.Types.ObjectId(userId),
+        date: date,
+        'trackerSnapshot.trackerId': trackerSnapshot.trackerId,
+      },
+      update,
+      { upsert: true, new: true }
+    );
   }
 }
 
