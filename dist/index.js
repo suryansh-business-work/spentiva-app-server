@@ -16,7 +16,6 @@ const auth_routes_1 = __importDefault(require("./apis/auth/auth.routes"));
 const tracker_routes_1 = __importDefault(require("./apis/tracker/tracker.routes"));
 const category_routes_1 = __importDefault(require("./apis/category/category.routes"));
 const expense_routes_1 = __importDefault(require("./apis/expense/expense.routes"));
-const message_routes_1 = __importDefault(require("./apis/message/message.routes"));
 const usage_routes_1 = __importDefault(require("./apis/usage/usage.routes"));
 const usage_log_routes_1 = __importDefault(require("./apis/usage-log/usage-log.routes"));
 const imagekit_routes_1 = __importDefault(require("./apis/file-upload/imagekit-file-upload/imagekit.routes"));
@@ -60,7 +59,6 @@ app.use('/v1/api/auth', auth_routes_1.default);
 // Resource Routes
 app.use('/v1/api/category', category_routes_1.default);
 app.use('/v1/api/expense', expense_routes_1.default);
-app.use('/v1/api/messages', message_routes_1.default);
 app.use('/v1/api/trackers', tracker_routes_1.default);
 app.use('/v1/api/usage', usage_routes_1.default);
 app.use('/v1/api/usage-logs', usage_log_routes_1.default);

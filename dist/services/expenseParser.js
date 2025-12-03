@@ -118,26 +118,35 @@ If you cannot parse the message for other reasons, respond with:
             if (!response) {
                 return { error: 'No response from AI' };
             }
+            // Get actual token usage from OpenAI
+            const usage = completion.usage;
+            console.log('[ParseExpense] OpenAI Token Usage:', {
+                prompt_tokens: usage?.prompt_tokens,
+                completion_tokens: usage?.completion_tokens,
+                total_tokens: usage?.total_tokens,
+            });
             const parsed = JSON.parse(response);
             if (parsed.error) {
-                return parsed;
+                return { ...parsed, usage };
             }
             // Validate the parsed expense
             if (!parsed.amount || !parsed.category || !parsed.subcategory || !parsed.paymentMethod) {
-                return { error: 'Missing required fields in expense' };
+                return { error: 'Missing required fields in expense', usage };
             }
             // Find the category ID from the fetched categories
             const categoryEntry = categories.find(cat => cat.name === parsed.category);
             if (!categoryEntry) {
                 return {
                     error: 'I was unable to find this category in your category list. Kindly update the categories before logging this item.',
+                    usage,
                 };
             }
-            // Add categoryId and timestamp
+            // Add categoryId, timestamp, and token usage
             const result = {
                 ...parsed,
                 categoryId: categoryEntry._id || categoryEntry.id, // Handle both _id (DB) and id (Config)
                 timestamp: new Date(),
+                usage, // Include actual OpenAI token usage
             };
             return result;
         }
@@ -148,7 +157,9 @@ If you cannot parse the message for other reasons, respond with:
     }
     static async getChatResponse(userMessage, conversationHistory) {
         if (!openai) {
-            return 'OpenAI API key not configured. Cannot provide chat responses.';
+            return {
+                response: 'OpenAI API key not configured. Cannot provide chat responses.',
+            };
         }
         try {
             const messages = [
@@ -165,11 +176,23 @@ If you cannot parse the message for other reasons, respond with:
                 temperature: 0.7,
                 max_tokens: 150,
             });
-            return completion.choices[0]?.message?.content || "I'm here to help track your expenses!";
+            // Get actual token usage from OpenAI
+            const usage = completion.usage;
+            console.log('[ChatResponse] OpenAI Token Usage:', {
+                prompt_tokens: usage?.prompt_tokens,
+                completion_tokens: usage?.completion_tokens,
+                total_tokens: usage?.total_tokens,
+            });
+            return {
+                response: completion.choices[0]?.message?.content || "I'm here to help track your expenses!",
+                usage,
+            };
         }
         catch (error) {
             console.error('Error getting chat response:', error);
-            return "Sorry, I'm having trouble responding right now.";
+            return {
+                response: "Sorry, I'm having trouble responding right now.",
+            };
         }
     }
 }
