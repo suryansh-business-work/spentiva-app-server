@@ -13,7 +13,8 @@ export interface IUser extends Document {
   phoneVerified: boolean;
   profilePhoto?: string;
   profilePhotoFileId?: string; // ImageKit file ID for deletion
-  accountType: 'personal' | 'business' | 'individual';
+  role: 'user' | 'admin';
+  accountType: 'free' | 'pro' | 'businesspro';
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   createdAt: Date;
@@ -59,10 +60,15 @@ const userSchema = new Schema<IUser>(
     profilePhotoFileId: {
       type: String, // ImageKit file ID for deletion
     },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
+    },
     accountType: {
       type: String,
-      enum: ['personal', 'business', 'individual'],
-      default: 'personal',
+      enum: ['free', 'pro', 'businesspro'],
+      default: 'free',
     },
     resetPasswordToken: {
       type: String,

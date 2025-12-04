@@ -27,9 +27,13 @@
  *         profilePhoto:
  *           type: string
  *           description: Profile photo URL
+ *         role:
+ *           type: string
+ *           enum: [user, admin]
+ *           description: User role
  *         accountType:
  *           type: string
- *           enum: [personal, business, individual]
+ *           enum: [free, pro, businesspro]
  *           description: Type of account
  *         createdAt:
  *           type: string

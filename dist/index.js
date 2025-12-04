@@ -20,6 +20,7 @@ const usage_routes_1 = __importDefault(require("./apis/usage/usage.routes"));
 const usage_log_routes_1 = __importDefault(require("./apis/usage-log/usage-log.routes"));
 const imagekit_routes_1 = __importDefault(require("./apis/file-upload/imagekit-file-upload/imagekit.routes"));
 const analytics_routes_1 = __importDefault(require("./apis/analytics/analytics.routes"));
+const admin_routes_1 = __importDefault(require("./apis/admin/admin.routes"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const PORT = env_1.default.PORT;
@@ -74,6 +75,8 @@ app.get('/', (req, res) => {
 });
 // Analytics
 app.use('/v1/api/analytics', analytics_routes_1.default);
+// Admin Panel
+app.use('/v1/api/admin', admin_routes_1.default);
 app.listen(PORT, () => {
     console.log(`Spentiva Server is running on http://localhost:${PORT}`);
 });

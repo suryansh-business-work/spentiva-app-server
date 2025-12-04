@@ -18,19 +18,11 @@ export class AuthService {
   /**
    * Generate JWT token for user
    */
-  private static generateToken(userId: string, email: string): string {
-    return jwt.sign({ userId, email }, config.JWT_SECRET, { expiresIn: '30d' });
+  private static generateToken(userId: string, email: string, role: string): string {
+    return jwt.sign({ userId, email, role }, config.JWT_SECRET, { expiresIn: '30d' });
   }
 
-  /**
-   * Map role parameter to accountType
-   */
-  private static mapRoleToAccountType(role?: string): 'personal' | 'business' | 'individual' {
-    if (role === 'user' || !role) return 'personal';
-    if (role === 'business') return 'business';
-    if (role === 'individual') return 'individual';
-    return 'personal'; // default
-  }
+
 
   /**
    * Login with email and password
@@ -57,7 +49,7 @@ export class AuthService {
       .catch(err => console.error('Error sending login notification:', err));
 
     // Generate token
-    const token = this.generateToken(user._id.toString(), user.email);
+    const token = this.generateToken(user._id.toString(), user.email, user.role);
 
     return {
       token,
@@ -69,30 +61,28 @@ export class AuthService {
         phone: user.phone,
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
+        role: user.role,
         accountType: user.accountType,
       },
     };
   }
 
   /**
-   * Signup with name, email, password, and optional role
+   * Signup with name, email, password, and optional accountType
    */
-  static async signup(name: string, email: string, password: string, role?: string) {
+  static async signup(name: string, email: string, password: string, accountType?: 'free' | 'pro' | 'businesspro') {
     // Check if user exists
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       throw new Error('Email already registered');
     }
 
-    // Map role to accountType
-    const accountType = this.mapRoleToAccountType(role);
-
     // Create user
     const user = await UserModel.create({
       email,
       password, // Will be hashed by pre-save hook
       name,
-      accountType,
+      accountType: accountType || 'free',
       emailVerified: false,
     });
 
@@ -117,7 +107,7 @@ export class AuthService {
       .catch(err => console.error('Error sending verification email:', err));
 
     // Generate token
-    const token = this.generateToken(user._id.toString(), user.email);
+    const token = this.generateToken(user._id.toString(), user.email, user.role);
 
     return {
       token,
@@ -129,6 +119,7 @@ export class AuthService {
         phone: user.phone,
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
+        role: user.role,
         accountType: user.accountType,
       },
     };
@@ -256,6 +247,7 @@ export class AuthService {
         phone: user.phone,
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
+        role: user.role,
         accountType: user.accountType,
       },
     };
@@ -310,6 +302,7 @@ export class AuthService {
         phone: user.phone,
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
+        role: user.role,
         accountType: user.accountType,
       },
     };
@@ -353,6 +346,7 @@ export class AuthService {
         phone: user.phone,
         phoneVerified: user.phoneVerified,
         profilePhoto: user.profilePhoto,
+        role: user.role,
         accountType: user.accountType,
       },
     };

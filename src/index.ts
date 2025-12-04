@@ -17,6 +17,7 @@ import usageRoutes from './apis/usage/usage.routes';
 import usageLogRoutes from './apis/usage-log/usage-log.routes';
 import imagekitUploadRoutes from './apis/file-upload/imagekit-file-upload/imagekit.routes';
 import analyticsRoutes from './apis/analytics/analytics.routes';
+import adminRoutes from './apis/admin/admin.routes';
 
 dotenv.config();
 const app = express();
@@ -88,6 +89,9 @@ app.get('/', (req, res) => {
 
 // Analytics
 app.use('/v1/api/analytics', analyticsRoutes);
+
+// Admin Panel
+app.use('/v1/api/admin', adminRoutes);
 
 app.listen(PORT, () => {
   console.log(`Spentiva Server is running on http://localhost:${PORT}`);
