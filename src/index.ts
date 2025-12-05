@@ -70,7 +70,9 @@ app.use(compression());
 // Request logging middleware
 app.use(requestLogger);
 
-app.use(express.json());
+// Body parser with increased limits for file uploads (especially base64 images)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static('uploads'));

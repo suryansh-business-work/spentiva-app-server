@@ -65,7 +65,9 @@ app.use((0, cors_1.default)({
 app.use((0, compression_1.default)());
 // Request logging middleware
 app.use(request_logger_1.requestLogger);
-app.use(express_1.default.json());
+// Body parser with increased limits for file uploads (especially base64 images)
+app.use(express_1.default.json({ limit: '50mb' }));
+app.use(express_1.default.urlencoded({ limit: '50mb', extended: true }));
 // Serve static files from uploads directory
 app.use('/uploads', express_1.default.static('uploads'));
 // === Swagger API Documentation ===
