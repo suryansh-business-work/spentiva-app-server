@@ -127,7 +127,6 @@ export const SupportTicketModel = mongoose.model<ISupportTicket>(
  * Ticket Counter Schema for auto-incrementing ticket IDs
  */
 interface ITicketCounter extends Document {
-  _id: string;
   sequence: number;
 }
 

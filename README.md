@@ -250,13 +250,74 @@ spentiva-app-server/
 
 ## 🔄 Available Scripts
 
-| Script                  | Description                        |
-| ----------------------- | ---------------------------------- |
-| `npm run dev`           | Development server with hot reload |
-| `npm run build`         | Compile TypeScript to JavaScript   |
-| `npm start`             | Start production server            |
-| `npm test`              | Run test suite                     |
-| `npm run migrate:usage` | Run usage data migration           |
+### Enhanced Scripts (Recommended)
+
+These scripts provide beautiful, colorful console output with progress indicators, timing information, and proper error handling:
+
+| Script          | Description                                                        |
+| --------------- | ------------------------------------------------------------------ |
+| `npm run dev`   | 🚀 Start development server with enhanced console output          |
+| `npm run build` | 🔨 Build project with step-by-step progress and timing            |
+| `npm start`     | ▶️ Start production server with build verification                |
+| `npm run lint`  | 🔍 Check code for linting errors                                  |
+| `npm run format`| ✨ Format code using Prettier                                     |
+
+### Simple Scripts (Legacy)
+
+These scripts run without the enhanced console output:
+
+| Script               | Description                           |
+| -------------------- | ------------------------------------- |
+| `npm run dev:simple` | Development server (basic nodemon)    |
+| `npm run build:simple` | Build TypeScript (basic output)     |
+| `npm run start:simple` | Start production server (no checks) |
+
+### Build Process Details
+
+The **`npm run build`** script performs the following steps:
+
+1. **🧹 Clean** - Removes old `dist/` folder
+2. **🔨 Compile** - Compiles TypeScript using `tsc`
+3. **📋 Copy** - Copies email templates to `dist/templates/`
+
+Each step shows:
+- ✓ Success/✗ Failure indicators
+- ⏱️ Execution time
+- 📊 Overall build summary
+
+**Example Output:**
+
+```
+════════════════════════════════════════════════════════════
+  🚀 Building Expense Tracker Server 🚀
+════════════════════════════════════════════════════════════
+
+Build started at: 4:44:15 pm
+
+[1/3] 🧹 Cleaning output directory...
+✓ Removed old dist folder
+
+[2/3] 🔨 Compiling TypeScript...
+[TypeScript Compilation] Starting...
+✓ TypeScript Compilation completed (5.23s)
+
+[3/3] 📋 Copying template files...
+[Template Copy] Starting...
+✓ Template Copy completed (0.45s)
+
+════════════════════════════════════════════════════════════
+  ✓ Build Completed Successfully! ✓
+════════════════════════════════════════════════════════════
+
+  All steps completed successfully!
+
+  Total build time: 6.82s
+  Output directory: ./dist
+  Completed at: 4:44:22 pm
+
+  🚀 Ready to start the server with: npm start
+```
+
 
 ## 🚀 CI/CD Pipeline
 
