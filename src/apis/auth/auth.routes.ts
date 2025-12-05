@@ -51,42 +51,42 @@ const upload = multer({
 // ============ MAIN AUTH ROUTES ============
 
 /**
- * @route   POST /api/auth/login
+ * @route   POST /v1/api/auth/login
  * @desc    Login with email and password
  * @access  Public
  */
 router.post('/login', validateDto(LoginDto), loginController);
 
 /**
- * @route   POST /api/auth/signup
+ * @route   POST /v1/api/auth/signup
  * @desc    Signup with name, email, password, and optional role
  * @access  Public
  */
 router.post('/signup', validateDto(SignupDto), signupController);
 
 /**
- * @route   POST /api/auth/forgot-password
+ * @route   POST /v1/api/auth/forgot-password
  * @desc    Send password reset OTP to email
  * @access  Public
  */
 router.post('/forgot-password', validateDto(ForgotPasswordDto), forgotPasswordController);
 
 /**
- * @route   POST /api/auth/reset-password
+ * @route   POST  /v1/api/auth/reset-password
  * @desc    Reset password with OTP
  * @access  Public
  */
 router.post('/reset-password', validateDto(ResetPasswordDto), resetPasswordController);
 
 /**
- * @route   POST /api/auth/verify-email
+ * @route   POST  /v1/api/auth/verify-email
  * @desc    Verify email with OTP
  * @access  Public
  */
 router.post('/verify-email', validateDto(VerifyEmailDto), verifyEmailController);
 
 /**
- * @route   POST /api/auth/send-verification-otp
+ * @route   POST /v1/api/auth/send-verification-otp
  * @desc    Send verification OTP to email
  * @access  Public
  */
@@ -97,14 +97,14 @@ router.post(
 );
 
 /**
- * @route   GET /api/auth/me
+ * @route   GET /v1/api/auth/me
  * @desc    Get current user profile
  * @access  Private
  */
 router.get('/me', authenticateMiddleware, getMeController);
 
 /**
- * @route   PUT /api/auth/profile
+ * @route   PUT /v1/api/auth/profile
  * @desc    Update user profile
  * @access  Private
  */
@@ -116,7 +116,7 @@ router.put(
 );
 
 /**
- * @route   POST /api/auth/profile-photo
+ * @route   POST /v1/api/auth/profile-photo
  * @desc    Upload profile photo
  * @access  Private
  */

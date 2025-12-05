@@ -5,7 +5,7 @@ exports.default = {
     DBURL: process.env.DBURL ||
         'mongodb+srv://suryanshbusinesswork:education54@sibera-box.ofemtir.mongodb.net/spentiva?retryWrites=true&w=majority',
     JWT_SECRET: process.env.JWT_SECRET || 'test-jwt-secret-key-for-testing-only',
-    OPENAI_API_KEY: process.env.OPENAI_API_KEY || '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',
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
     SERVICES: {
         EMAIL: {
             NODEMAILER: {

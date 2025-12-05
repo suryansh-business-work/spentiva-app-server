@@ -1,11 +1,13 @@
 /**
  * @swagger
- * /api/expenses:
+ * /v1/api/expense/parse:
  *   post:
  *     tags:
  *       - Expenses
- *     summary: Create a new expense
- *     description: Log a new expense entry
+ *     summary: Parse expense from natural language
+ *     description: AI-powered expense parsing from text
+ *     security:
+ *       - BearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -13,76 +15,26 @@
  *           schema:
  *             type: object
  *             required:
- *               - amount
- *               - category
- *               - subcategory
- *               - categoryId
- *               - paymentMethod
+ *               - input
+ *               - trackerId
  *             properties:
- *               amount:
- *                 type: number
- *                 example: 500
- *               category:
+ *               input:
  *                 type: string
- *                 example: Food & Dining
- *               subcategory:
- *                 type: string
- *                 example: Groceries
- *               categoryId:
- *                 type: string
- *               paymentMethod:
- *                 type: string
- *                 example: Credit Card
- *               description:
- *                 type: string
- *                 example: Weekly grocery shopping
+ *                 example: Spent 500 on groceries via UPI
  *               trackerId:
  *                 type: string
  *     responses:
- *       201:
- *         description: Expense created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 expense:
- *                   $ref: '#/components/schemas/Expense'
- *   get:
- *     tags:
- *       - Expenses
- *     summary: Get all expenses
- *     description: Retrieve all expenses with optional filtering
- *     parameters:
- *       - in: query
- *         name: trackerId
- *         schema:
- *           type: string
- *         description: Filter by tracker ID
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *         description: Limit number of results
- *     responses:
  *       200:
- *         description: Expenses retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 expenses:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Expense'
+ *         description: Expense parsed successfully
+ *       401:
+ *         description: Unauthorized
  *
- * /api/expenses/parse:
+ * /v1/api/expense/chat:
  *   post:
  *     tags:
  *       - Expenses
- *     summary: Parse expense from natural language
- *     description: Use AI to parse expense details from natural language message
+ *     summary: Chat with AI assistant
+ *     description: Conversational expense tracking
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -93,53 +45,75 @@
  *             type: object
  *             required:
  *               - message
- *               - trackerId
  *             properties:
  *               message:
  *                 type: string
- *                 example: Spent 500 on groceries using credit card
+ *               history:
+ *                 type: array
+ *                 items:
+ *                   type: object
  *               trackerId:
  *                 type: string
  *     responses:
  *       200:
- *         description: Expense parsed successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Expense'
+ *         description: Chat response generated
+ *       401:
+ *         description: Unauthorized
  *
- * /api/expenses/{id}:
+ * /v1/api/expense/all:
+ *   get:
+ *     tags:
+ *       - Expenses
+ *     summary: Get all expenses
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - name: trackerId
+ *         in: query
+ *         schema:
+ *           type: string
+ *       - name: limit
+ *         in: query
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Expenses retrieved
+ *       401:
+ *         description: Unauthorized
+ *
+ * /v1/api/expense/{id}:
  *   get:
  *     tags:
  *       - Expenses
  *     summary: Get expense by ID
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Expense retrieved
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 expense:
- *                   $ref: '#/components/schemas/Expense'
+ *         description: Expense found
+ *       401:
+ *         description: Unauthorized
  *   put:
  *     tags:
  *       - Expenses
- *     summary: Update an expense
+ *     summary: Update expense
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
  *         schema:
  *           type: string
  *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
  *           schema:
@@ -147,19 +121,25 @@
  *     responses:
  *       200:
  *         description: Expense updated
+ *       401:
+ *         description: Unauthorized
  *   delete:
  *     tags:
  *       - Expenses
- *     summary: Delete an expense
+ *     summary: Delete expense
+ *     security:
+ *       - BearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
  *         schema:
  *           type: string
  *     responses:
  *       200:
  *         description: Expense deleted
+ *       401:
+ *         description: Unauthorized
  */
 
 export { };

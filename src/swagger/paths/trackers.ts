@@ -1,6 +1,6 @@
 /**
  * @swagger
- * /api/trackers/trackers:
+ * /v1/api/tracker/all:
  *   get:
  *     tags:
  *       - Trackers
@@ -20,12 +20,14 @@
  *                   type: array
  *                   items:
  *                     $ref: '#/components/schemas/Tracker'
+ *       401:
+ *         description: Unauthorized
  *
- * /api/trackers/create/tracker:
+ * /v1/api/tracker/create:
  *   post:
  *     tags:
  *       - Trackers
- *     summary: Create a new tracker
+ *     summary: Create new tracker
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -48,23 +50,18 @@
  *                 example: personal
  *               description:
  *                 type: string
- *                 example: Track my personal monthly expenses
+ *                 example: Daily personal spending
  *               currency:
  *                 type: string
  *                 enum: [INR, USD, EUR, GBP]
  *                 example: INR
  *     responses:
  *       201:
- *         description: Tracker created
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 tracker:
- *                   $ref: '#/components/schemas/Tracker'
+ *         description: Tracker created successfully
+ *       401:
+ *         description: Unauthorized
  *
- * /api/trackers/get/tracker/{id}:
+ * /v1/api/tracker/get/{id}:
  *   get:
  *     tags:
  *       - Trackers
@@ -72,36 +69,34 @@
  *     security:
  *       - BearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Tracker retrieved
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 tracker:
- *                   $ref: '#/components/schemas/Tracker'
+ *         description: Tracker found
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Tracker not found
  *
- * /api/trackers/update/tracker/{id}:
+ * /v1/api/tracker/update/{id}:
  *   put:
  *     tags:
  *       - Trackers
- *     summary: Update a tracker
+ *     summary: Update tracker
  *     security:
  *       - BearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
  *         schema:
  *           type: string
  *     requestBody:
+ *       required: true
  *       content:
  *         application/json:
  *           schema:
@@ -109,32 +104,35 @@
  *             properties:
  *               name:
  *                 type: string
- *               type:
- *                 type: string
  *               description:
  *                 type: string
  *               currency:
  *                 type: string
+ *                 enum: [INR, USD, EUR, GBP]
  *     responses:
  *       200:
  *         description: Tracker updated
+ *       401:
+ *         description: Unauthorized
  *
- * /api/trackers/delete/tracker/{id}:
+ * /v1/api/tracker/delete/{id}:
  *   delete:
  *     tags:
  *       - Trackers
- *     summary: Delete a tracker
+ *     summary: Delete tracker
  *     security:
  *       - BearerAuth: []
  *     parameters:
- *       - in: path
- *         name: id
+ *       - name: id
+ *         in: path
  *         required: true
  *         schema:
  *           type: string
  *     responses:
  *       200:
  *         description: Tracker deleted
+ *       401:
+ *         description: Unauthorized
  */
 
 export { };

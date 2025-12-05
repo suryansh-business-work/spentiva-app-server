@@ -20,56 +20,56 @@ const router = express.Router();
  */
 
 /**
- * @route   POST /api/support/tickets
+ * @route   POST /v1/api/support/tickets
  * @desc    Create a new support ticket
  * @access  Private
  */
 router.post('/tickets', authenticateMiddleware, createTicketController);
 
 /**
- * @route   GET /api/support/tickets
+ * @route   GET /v1/api/support/tickets
  * @desc    Get all tickets (user's tickets or all tickets for admin)
  * @access  Private
  */
 router.get('/tickets', authenticateMiddleware, getAllTicketsController);
 
 /**
- * @route   GET /api/support/tickets/stats
+ * @route   GET /v1/api/support/tickets/stats
  * @desc    Get ticket statistics
  * @access  Private
  */
 router.get('/tickets/stats', authenticateMiddleware, getTicketStatsController);
 
 /**
- * @route   GET /api/support/tickets/:ticketId
+ * @route   GET /v1/api/support/tickets/:ticketId
  * @desc    Get ticket by ID
  * @access  Private
  */
 router.get('/tickets/:ticketId', authenticateMiddleware, getTicketByIdController);
 
 /**
- * @route   PUT /api/support/tickets/:ticketId/status
+ * @route   PUT /v1/api/support/tickets/:ticketId/status
  * @desc    Update ticket status
  * @access  Private
  */
 router.put('/tickets/:ticketId/status', authenticateMiddleware, updateTicketStatusController);
 
 /**
- * @route   POST /api/support/tickets/:ticketId/attachments
+ * @route   POST /v1/api/support/tickets/:ticketId/attachments
  * @desc    Add attachment to ticket
  * @access  Private
  */
 router.post('/tickets/:ticketId/attachments', authenticateMiddleware, addAttachmentController);
 
 /**
- * @route   POST /api/support/tickets/:ticketId/updates
+ * @route   POST /v1/api/support/tickets/:ticketId/updates
  * @desc    Add update message to ticket
  * @access  Private
  */
 router.post('/tickets/:ticketId/updates', authenticateMiddleware, addUpdateController);
 
 /**
- * @route   DELETE /api/support/tickets/:ticketId
+ * @route   DELETE /v1/api/support/tickets/:ticketId
  * @desc    Delete ticket (admin only)
  * @access  Admin
  */

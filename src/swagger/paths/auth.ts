@@ -1,10 +1,10 @@
 /**
  * @swagger
- * /api/auth/login:
+ * /v1/api/auth/login:
  *   post:
  *     tags:
  *       - Authentication
- *     summary: Login with email and password
+ *     summary: User login
  *     description: Authenticate user with email and password
  *     requestBody:
  *       required: true
@@ -19,11 +19,10 @@
  *               email:
  *                 type: string
  *                 format: email
- *                 example: user@example.com
+ *                 example: john@example.com
  *               password:
  *                 type: string
- *                 format: password
- *                 minimum: 6
+ *                 minLength: 6
  *                 example: password123
  *     responses:
  *       200:
@@ -37,13 +36,13 @@
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/ErrorResponse'
  *
- * /api/auth/signup:
+ * /v1/api/auth/signup:
  *   post:
  *     tags:
  *       - Authentication
- *     summary: Create a new account
+ *     summary: Create new account
  *     description: Register a new user account
  *     requestBody:
  *       required: true
@@ -62,15 +61,14 @@
  *               email:
  *                 type: string
  *                 format: email
- *                 example: user@example.com
+ *                 example: john@example.com
  *               password:
  *                 type: string
- *                 format: password
- *                 minimum: 6
+ *                 minLength: 6
  *                 example: password123
  *               role:
  *                 type: string
- *                 enum: [user, business, individual]
+ *                 enum: [user, business]
  *                 example: user
  *     responses:
  *       201:
@@ -81,33 +79,8 @@
  *               $ref: '#/components/schemas/AuthResponse'
  *       400:
  *         description: Email already registered
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  *
- * /api/auth/me:
- *   get:
- *     tags:
- *       - Authentication
- *     summary: Get current user profile
- *     description: Retrieve the authenticated user's profile information
- *     security:
- *       - BearerAuth: []
- *     responses:
- *       200:
- *         description: Profile retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *       401:
- *         description: Unauthorized - Token missing or invalid
- *
- * /api/auth/forgot-password:
+ * /v1/api/auth/forgot-password:
  *   post:
  *     tags:
  *       - Authentication
@@ -125,11 +98,12 @@
  *               email:
  *                 type: string
  *                 format: email
+ *                 example: john@example.com
  *     responses:
  *       200:
- *         description: Reset code sent
+ *         description: Reset OTP sent to email
  *
- * /api/auth/reset-password:
+ * /v1/api/auth/reset-password:
  *   post:
  *     tags:
  *       - Authentication
@@ -148,22 +122,29 @@
  *             properties:
  *               email:
  *                 type: string
+ *                 example: john@example.com
  *               otp:
  *                 type: string
+ *                 pattern: '^\\d{6}$'
+ *                 example: "123456"
  *               newPassword:
  *                 type: string
+ *                 minLength: 6
+ *                 example: newPassword123
  *               confirmPassword:
  *                 type: string
+ *                 example: newPassword123
  *     responses:
  *       200:
  *         description: Password reset successfully
+ *       400:
+ *         description: Invalid OTP or passwords don't match
  *
- * /api/auth/verify-email:
+ * /v1/api/auth/verify-email:
  *   post:
  *     tags:
  *       - Authentication
  *     summary: Verify email with OTP
- *     description: Verify user's email address using OTP sent to their email
  *     requestBody:
  *       required: true
  *       content:
@@ -176,8 +157,7 @@
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
- *                 example: user@example.com
+ *                 example: john@example.com
  *               otp:
  *                 type: string
  *                 example: "123456"
@@ -187,12 +167,11 @@
  *       400:
  *         description: Invalid or expired OTP
  *
- * /api/auth/send-verification-otp:
+ * /v1/api/auth/send-verification-otp:
  *   post:
  *     tags:
  *       - Authentication
- *     summary: Send verification OTP to email
- *     description: Request a new OTP for email verification
+ *     summary: Send verification OTP
  *     requestBody:
  *       required: true
  *       content:
@@ -204,20 +183,36 @@
  *             properties:
  *               email:
  *                 type: string
- *                 format: email
- *                 example: user@example.com
+ *                 example: john@example.com
  *     responses:
  *       200:
  *         description: OTP sent successfully
- *       400:
- *         description: Invalid email
  *
- * /api/auth/profile:
+ * /v1/api/auth/me:
+ *   get:
+ *     tags:
+ *       - Authentication
+ *     summary: Get current user profile
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Profile retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ *
+ * /v1/api/auth/profile:
  *   put:
  *     tags:
  *       - Authentication
  *     summary: Update user profile
- *     description: Update current user's profile information
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -232,30 +227,18 @@
  *                 example: John Doe
  *               phone:
  *                 type: string
- *                 example: "+1234567890"
- *               accountType:
- *                 type: string
- *                 enum: [personal, business]
- *                 example: personal
+ *                 example: "+919876543210"
  *     responses:
  *       200:
  *         description: Profile updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 user:
- *                   $ref: '#/components/schemas/User'
  *       401:
  *         description: Unauthorized
  *
- * /api/auth/profile-photo:
+ * /v1/api/auth/profile-photo:
  *   post:
  *     tags:
  *       - Authentication
  *     summary: Upload profile photo
- *     description: Upload or update user's profile photo (max 5MB)
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -273,26 +256,9 @@
  *                 description: Image file (jpeg, jpg, png, gif) - max 5MB
  *     responses:
  *       200:
- *         description: Profile photo uploaded successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 message:
- *                   type: string
- *                   example: Profile photo uploaded successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     profilePhoto:
- *                       type: string
- *                       example: https://ik.imagekit.io/spentiva/profile-photos/user-123.jpg
+ *         description: Photo uploaded successfully
  *       400:
- *         description: No file uploaded or invalid file type
+ *         description: No file or invalid file type
  *       401:
  *         description: Unauthorized
  */
