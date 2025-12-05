@@ -16,6 +16,8 @@ import expenseRoutes from './apis/expense/expense.routes';
 import usageRoutes from './apis/usage/usage.routes';
 import usageLogRoutes from './apis/usage-log/usage-log.routes';
 import imagekitUploadRoutes from './apis/file-upload/imagekit-file-upload/imagekit.routes';
+import uploadRoutes from './apis/file-upload/local-upload/upload.routes';
+import supportRoutes from './apis/support/support.routes';
 import analyticsRoutes from './apis/analytics/analytics.routes';
 import adminRoutes from './apis/admin/admin.routes';
 
@@ -52,6 +54,9 @@ app.use(
 
 app.use(express.json());
 
+// Serve static files from uploads directory
+app.use('/uploads', express.static('uploads'));
+
 // === Swagger API Documentation ===
 app.use(
   '/api/docs',
@@ -79,7 +84,7 @@ app.use('/v1/api/usage-logs', usageLogRoutes);
 
 // File uploads
 app.use('/v1/api', imagekitUploadRoutes);
-app.use('/v1/api', authRoutes);
+app.use('/v1/api', uploadRoutes);
 app.use('/v1/api', trackerRoutes);
 
 // Health check
@@ -92,6 +97,9 @@ app.use('/v1/api/analytics', analyticsRoutes);
 
 // Admin Panel
 app.use('/v1/api/admin', adminRoutes);
+
+// Support Tickets
+app.use('/v1/api/support', supportRoutes);
 
 app.listen(PORT, () => {
   console.log(`Spentiva Server is running on http://localhost:${PORT}`);

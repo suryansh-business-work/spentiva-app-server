@@ -5,21 +5,47 @@ import imagekitService from './imagekit.service';
 /**
  * ImageKit Upload Controller
  * Handles file upload requests and delegates to ImageKit service
+ * Expects files to be parsed by multer middleware
  */
 const imageKitUpload = async (req: any, res: Response) => {
   try {
-    // Validate that files are present
-    if (!req?.files?.files) {
-      return errorResponse(res, { error: 'No files provided' }, 'Files are required for upload');
+    console.log('req.file:', req.file);
+    console.log('req.files:', req.files);
+    console.log('req.body:', req.body);
+
+    // Multer places files in req.files when using upload.any() or upload.array()
+    // or in req.file when using upload.single()
+    let filesToUpload: any[] = [];
+
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      filesToUpload = req.files;
+    } else if (req.file) {
+      filesToUpload = [req.file];
     }
 
-    const files = req.files.files;
+    // Validate that we have files
+    if (filesToUpload.length === 0) {
+      return errorResponse(
+        res,
+        { error: 'No files provided' },
+        'Files are required for upload. Make sure to send files in the request.'
+      );
+    }
+
+    console.log(`Processing ${filesToUpload.length} file(s) for upload`);
 
     // Handle single file upload
-    if (!Array.isArray(files)) {
-      const { name, data } = files;
+    if (filesToUpload.length === 1) {
+      const file = filesToUpload[0];
+      const fileName = file.originalname;
+      const fileBuffer = file.buffer;
 
-      const uploadResult = await imagekitService.uploadRawData(data, name, '/suryansh');
+      if (!fileBuffer || !fileName) {
+        return errorResponse(res, { error: 'Invalid file data' }, 'File must have name and data');
+      }
+
+      console.log(`Uploading single file: ${fileName}`);
+      const uploadResult = await imagekitService.uploadRawData(fileBuffer, fileName, '/suryansh');
 
       return successResponseArr(
         res,
@@ -28,7 +54,7 @@ const imageKitUpload = async (req: any, res: Response) => {
             fileId: uploadResult.fileId,
             size: uploadResult.size,
             fileName: {
-              actual: name,
+              actual: fileName,
               uploadedName: uploadResult.name,
             },
             filePath: {
@@ -45,10 +71,22 @@ const imageKitUpload = async (req: any, res: Response) => {
     }
 
     // Handle multiple file uploads
-    const fileArray = files.map((file: any) => ({
-      name: file.name,
-      data: file.data,
+    console.log(`Uploading ${filesToUpload.length} files`);
+    const fileArray = filesToUpload.map((file: any) => ({
+      name: file.originalname,
+      data: file.buffer,
     }));
+
+    // Validate all files have required data
+    for (const file of fileArray) {
+      if (!file.name || !file.data) {
+        return errorResponse(
+          res,
+          { error: 'Invalid file data' },
+          'All files must have name and data'
+        );
+      }
+    }
 
     const uploadResults = await imagekitService.uploadMultipleFiles(fileArray, '/suryansh');
 
@@ -66,7 +104,7 @@ const imageKitUpload = async (req: any, res: Response) => {
         fileType: result.fileType,
       })),
       {},
-      'All files uploaded successfully'
+      `${uploadResults.length} file(s) uploaded successfully`
     );
   } catch (error: any) {
     console.error('Error in imageKitUpload controller:', error);

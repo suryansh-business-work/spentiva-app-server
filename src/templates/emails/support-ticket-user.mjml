@@ -1,0 +1,111 @@
+<mjml>
+  <mj-head>
+    <mj-title>Support Ticket Created - Spentiva</mj-title>
+    <mj-font
+      name="Inter"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    />
+    <mj-attributes>
+      <mj-all font-family="Inter, Arial, sans-serif" />
+      <mj-text font-size="16px" color="#333333" line-height="1.6" />
+      <mj-section padding="20px" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <!-- Header -->
+    <mj-section background-color="#6366f1" padding="30px">
+      <mj-column>
+        <mj-text align="center" color="#ffffff" font-size="28px" font-weight="700">
+          Spentiva
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Main Content -->
+    <mj-section background-color="#ffffff" padding="40px 30px">
+      <mj-column>
+        <mj-text font-size="24px" font-weight="600" color="#1f2937" padding-bottom="20px">
+          Your Ticket Has Been Created! ✅
+        </mj-text>
+
+        <mj-text color="#4b5563">
+          Hi {{ userName }},
+        </mj-text>
+
+        <mj-text color="#4b5563">
+          Thank you for contacting Spentiva Support. We have received your support request and our team will review it shortly.
+        </mj-text>
+
+        <!-- Ticket Details Box -->
+        <mj-section
+          background-color="#f0f9ff"
+          border-radius="8px"
+          padding="25px"
+          border="1px solid #e0e7ff"
+        >
+          <mj-column>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
+              Ticket ID
+            </mj-text>
+            <mj-text font-size="20px" font-weight="700" color="#6366f1" padding-bottom="15px">
+              {{ ticketId }}
+            </mj-text>
+
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
+              Type
+            </mj-text>
+            <mj-text font-size="16px" font-weight="600" color="#1f2937" padding-bottom="15px">
+              {{ ticketType }}
+            </mj-text>
+
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
+              Subject
+            </mj-text>
+            <mj-text font-size="16px" font-weight="600" color="#1f2937" padding-bottom="15px">
+              {{ subject }}
+            </mj-text>
+
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
+              Status
+            </mj-text>
+            <mj-text font-size="16px" font-weight="600" color="#10b981">
+              Open
+            </mj-text>
+          </mj-column>
+        </mj-section>
+
+        <mj-text color="#4b5563" padding-top="20px">
+          <strong>What happens next?</strong>
+        </mj-text>
+
+        <mj-text color="#4b5563" padding-left="10px">
+          • Our support team will review your request<br/>
+          • You'll receive updates via email<br/>
+          • We typically respond within 24 hours
+        </mj-text>
+
+        <mj-divider border-color="#e5e7eb" padding="30px 0" />
+
+        <mj-text color="#6b7280" font-size="14px">
+          You can track your ticket status by contacting us or checking your email for updates.
+        </mj-text>
+
+        <mj-text color="#6b7280" font-size="14px" padding-top="20px">
+          Need immediate assistance? Contact our support team at suryansh.personal1@gmail.com
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <!-- Footer -->
+    <mj-section background-color="#f4f4f4" padding="20px">
+      <mj-column>
+        <mj-text align="center" color="#9ca3af" font-size="12px">
+          © 2025 Spentiva. All rights reserved.
+        </mj-text>
+        <mj-text align="center" color="#9ca3af" font-size="12px">
+          You're receiving this email because you created a support ticket.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

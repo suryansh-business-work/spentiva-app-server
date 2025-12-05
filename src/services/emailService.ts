@@ -203,6 +203,65 @@ export const sendSignupOtpEmail = async (to: string, otp: string): Promise<void>
   });
 };
 
+/**
+ * Send support ticket confirmation email to user
+ */
+export const sendSupportTicketUserEmail = async (
+  to: string,
+  ticketDetails: {
+    ticketId: string;
+    userName: string;
+    type: string;
+    subject: string;
+  }
+): Promise<void> => {
+  const templatePath = path.join(__dirname, '../templates/emails/support-ticket-user.mjml');
+  const html = compileMjmlTemplate(templatePath, {
+    userName: ticketDetails.userName,
+    ticketId: ticketDetails.ticketId,
+    ticketType: ticketDetails.type,
+    subject: ticketDetails.subject,
+  });
+
+  await sendEmail({
+    to,
+    subject: `Support Ticket Created - ${ticketDetails.ticketId}`,
+    html,
+  });
+};
+
+/**
+ * Send support ticket notification email to agent/support team
+ */
+export const sendSupportTicketAgentEmail = async (
+  ticketDetails: {
+    ticketId: string;
+    userName: string;
+    userEmail: string;
+    type: string;
+    subject: string;
+    description: string;
+    createdAt: string;
+  }
+): Promise<void> => {
+  const templatePath = path.join(__dirname, '../templates/emails/support-ticket-agent.mjml');
+  const html = compileMjmlTemplate(templatePath, {
+    ticketId: ticketDetails.ticketId,
+    userName: ticketDetails.userName,
+    userEmail: ticketDetails.userEmail,
+    ticketType: ticketDetails.type,
+    subject: ticketDetails.subject,
+    description: ticketDetails.description,
+    createdAt: ticketDetails.createdAt,
+  });
+
+  await sendEmail({
+    to: 'suryansh.personal1@gmail.com', // Support email
+    subject: `New Support Ticket - ${ticketDetails.ticketId}`,
+    html,
+  });
+};
+
 export default {
   sendEmail,
   sendWelcomeEmail,
@@ -211,4 +270,6 @@ export default {
   sendPasswordResetEmail,
   sendLoginNotificationEmail,
   sendPasswordResetSuccessEmail,
+  sendSupportTicketUserEmail,
+  sendSupportTicketAgentEmail,
 };

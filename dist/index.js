@@ -19,6 +19,8 @@ const expense_routes_1 = __importDefault(require("./apis/expense/expense.routes"
 const usage_routes_1 = __importDefault(require("./apis/usage/usage.routes"));
 const usage_log_routes_1 = __importDefault(require("./apis/usage-log/usage-log.routes"));
 const imagekit_routes_1 = __importDefault(require("./apis/file-upload/imagekit-file-upload/imagekit.routes"));
+const upload_routes_1 = __importDefault(require("./apis/file-upload/local-upload/upload.routes"));
+const support_routes_1 = __importDefault(require("./apis/support/support.routes"));
 const analytics_routes_1 = __importDefault(require("./apis/analytics/analytics.routes"));
 const admin_routes_1 = __importDefault(require("./apis/admin/admin.routes"));
 dotenv_1.default.config();
@@ -48,6 +50,8 @@ app.use((0, cors_1.default)({
     maxAge: 86400, // 24 hours
 }));
 app.use(express_1.default.json());
+// Serve static files from uploads directory
+app.use('/uploads', express_1.default.static('uploads'));
 // === Swagger API Documentation ===
 app.use('/api/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(config_1.default, {
     customCss: '.swagger-ui .topbar { display: none }',
@@ -67,7 +71,7 @@ app.use('/v1/api/usage-logs', usage_log_routes_1.default);
 // app.use('/api/reports', reportRoutes);
 // File uploads
 app.use('/v1/api', imagekit_routes_1.default);
-app.use('/v1/api', auth_routes_1.default);
+app.use('/v1/api', upload_routes_1.default);
 app.use('/v1/api', tracker_routes_1.default);
 // Health check
 app.get('/', (req, res) => {
@@ -77,6 +81,8 @@ app.get('/', (req, res) => {
 app.use('/v1/api/analytics', analytics_routes_1.default);
 // Admin Panel
 app.use('/v1/api/admin', admin_routes_1.default);
+// Support Tickets
+app.use('/v1/api/support', support_routes_1.default);
 app.listen(PORT, () => {
     console.log(`Spentiva Server is running on http://localhost:${PORT}`);
 });
