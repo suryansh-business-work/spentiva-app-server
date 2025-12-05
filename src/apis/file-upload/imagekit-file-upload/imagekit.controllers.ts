@@ -1,11 +1,13 @@
 import { Response } from 'express';
 import { errorResponse, successResponseArr } from '../../../utils/response-object';
 import imagekitService from './imagekit.service';
+import { convertWebMToMP4, isWebMFile } from '../../../utils/video-converter';
 
 /**
  * ImageKit Upload Controller
  * Handles file upload requests and delegates to ImageKit service
  * Expects files to be parsed by multer middleware
+ * Automatically converts WebM files to MP4 before upload
  */
 const imageKitUpload = async (req: any, res: Response) => {
   try {
@@ -34,9 +36,41 @@ const imageKitUpload = async (req: any, res: Response) => {
 
     console.log(`Processing ${filesToUpload.length} file(s) for upload`);
 
+    // Convert WebM files to MP4 before processing
+    const processedFiles = await Promise.all(
+      filesToUpload.map(async (file: any) => {
+        const fileName = file.originalname;
+        const fileBuffer = file.buffer;
+        const mimeType = file.mimetype;
+
+        // Check if file is WebM
+        if (isWebMFile(fileName, mimeType)) {
+          console.log(`Detected WebM file: ${fileName}. Converting to MP4...`);
+          try {
+            const converted = await convertWebMToMP4(fileBuffer, fileName);
+            console.log(`Successfully converted ${fileName} to ${converted.fileName}`);
+            return {
+              originalname: converted.fileName,
+              buffer: converted.buffer,
+              mimetype: 'video/mp4',
+              size: converted.buffer.length,
+            };
+          } catch (error: any) {
+            console.error(`Failed to convert ${fileName}:`, error.message);
+            // If conversion fails, upload original file
+            console.log(`Uploading original WebM file: ${fileName}`);
+            return file;
+          }
+        }
+
+        // Return file as-is if not WebM
+        return file;
+      })
+    );
+
     // Handle single file upload
-    if (filesToUpload.length === 1) {
-      const file = filesToUpload[0];
+    if (processedFiles.length === 1) {
+      const file = processedFiles[0];
       const fileName = file.originalname;
       const fileBuffer = file.buffer;
 
@@ -71,8 +105,8 @@ const imageKitUpload = async (req: any, res: Response) => {
     }
 
     // Handle multiple file uploads
-    console.log(`Uploading ${filesToUpload.length} files`);
-    const fileArray = filesToUpload.map((file: any) => ({
+    console.log(`Uploading ${processedFiles.length} files`);
+    const fileArray = processedFiles.map((file: any) => ({
       name: file.originalname,
       data: file.buffer,
     }));
