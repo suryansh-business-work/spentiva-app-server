@@ -1,5 +1,9 @@
 import 'reflect-metadata';
 import dotenv from 'dotenv';
+
+// CRITICAL: Load .env variables BEFORE importing any modules that use process.env
+dotenv.config();
+
 import express from 'express';
 import cors from 'cors';
 import compression from 'compression';
@@ -26,7 +30,6 @@ import analyticsRoutes from './apis/analytics/analytics.routes';
 import adminRoutes from './apis/admin/admin.routes';
 import healthRoutes from './apis/health/health.routes';
 
-dotenv.config();
 const app = express();
 const PORT = config.PORT;
 
