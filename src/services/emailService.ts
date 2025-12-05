@@ -3,6 +3,7 @@ import mjml2html from 'mjml';
 import fs from 'fs';
 import path from 'path';
 import config from '../config/env';
+import { logger } from '../utils/logger';
 
 // Init Nodemailer Transport with timeout settings
 const transporter = nodemailer.createTransport({
@@ -22,16 +23,17 @@ const transporter = nodemailer.createTransport({
 });
 
 // Verify SMTP connection on startup
-console.log('📧 [EMAIL CONFIG] Initializing email service...');
-console.log('📧 [EMAIL CONFIG] Host:', config?.SERVICES?.EMAIL?.NODEMAILER?.HOST);
-console.log('📧 [EMAIL CONFIG] Port:', config?.SERVICES?.EMAIL?.NODEMAILER?.PORT);
-console.log('📧 [EMAIL CONFIG] User:', config?.SERVICES?.EMAIL?.NODEMAILER?.USER);
+logger.info('Email service initializing', {
+  host: config?.SERVICES?.EMAIL?.NODEMAILER?.HOST,
+  port: config?.SERVICES?.EMAIL?.NODEMAILER?.PORT,
+  user: config?.SERVICES?.EMAIL?.NODEMAILER?.USER,
+});
 
 transporter.verify(error => {
   if (error) {
-    console.error('❌ [EMAIL CONFIG] SMTP connection failed:', error.message);
+    logger.error('SMTP connection failed', { error: error.message });
   } else {
-    console.log('✅ [EMAIL CONFIG] SMTP connection verified successfully!');
+    logger.info('SMTP connection verified successfully');
   }
 });
 
@@ -57,15 +59,15 @@ export const sendEmail = async (options: EmailOptions): Promise<void> => {
     await new Promise<void>((resolve, reject) => {
       transporter.sendMail(mailOptions, (error, _success: any) => {
         if (error) {
-          console.error('❌ [EMAIL] Failed to send email:', error.message);
+          logger.error('Failed to send email', { error: error.message, to: options.to });
           return reject(new Error(`Failed to send email: ${error.message}`));
         }
-        console.log('✅ [EMAIL] Email sent successfully:', _success.messageId);
+        logger.info('Email sent successfully', { messageId: _success.messageId, to: options.to });
         resolve();
       });
     });
   } catch (error: any) {
-    console.error('❌ [EMAIL] Failed to send email:', error.message);
+    logger.error('Email send failed', { error: error.message });
     throw error; // Re-throw the error caught from the promise
   }
 };
@@ -88,7 +90,7 @@ const compileMjmlTemplate = (templatePath: string, variables: Record<string, any
     const result = mjml2html(mjmlContent);
     return result.html;
   } catch (error: any) {
-    console.error(`Error compiling MJML template ${templatePath}:`, error.message);
+    logger.error('MJML template compilation failed', { templatePath, error: error.message });
     throw error;
   }
 };

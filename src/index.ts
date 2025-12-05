@@ -111,13 +111,10 @@ app.use('/v1/api/auth', authRoutes);
 // AI Endpoints (with moderate rate limiting)
 app.use('/v1/api/expense/parse', aiLimiter);
 
-// General API rate limiting for all other routes
-app.use('/v1/api', apiLimiter);
-
-// Resource Routes
+// Resource Routes (BEFORE general rate limiting)
 app.use('/v1/api/category', categoryRoutes);
 app.use('/v1/api/expense', expenseRoutes);
-app.use('/v1/api/trackers', trackerRoutes);
+app.use('/v1/api/tracker', trackerRoutes);
 app.use('/v1/api/usage', usageRoutes);
 app.use('/v1/api/usage-logs', usageLogRoutes);
 
@@ -133,6 +130,10 @@ app.use('/v1/api/admin', adminRoutes);
 
 // Support Tickets
 app.use('/v1/api/support', supportRoutes);
+
+// General API rate limiting (AFTER all specific routes)
+// This will only apply to routes not matched above
+app.use('/v1/api', apiLimiter);
 
 // Global Error Handler (must be after all routes)
 app.use((err: any, _req: any, res: any, _next: any) => {

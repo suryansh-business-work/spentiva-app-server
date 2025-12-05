@@ -24,7 +24,6 @@ export const getAllLogsController = async (req: any, res: Response) => {
 
     return successResponse(res, { logs }, 'Usage logs retrieved successfully');
   } catch (error: any) {
-    console.error('Error fetching usage logs:', error);
     return errorResponse(res, error, 'Internal server error');
   }
 };
@@ -60,7 +59,6 @@ export const createLogController = async (req: any, res: Response) => {
       'Usage log created successfully'
     );
   } catch (error: any) {
-    console.error('Error creating usage log:', error);
     if (error.message.includes('Missing required fields')) {
       return badRequestResponse(res, null, error.message);
     }
@@ -78,7 +76,6 @@ export const deleteOldLogsController = async (req: any, res: Response) => {
 
     return successResponse(res, result, result.message);
   } catch (error: any) {
-    console.error('Error deleting old logs:', error);
     return errorResponse(res, error, 'Internal server error');
   }
 };
@@ -101,16 +98,8 @@ export const deleteLogsByTrackerController = async (req: any, res: Response) => 
 
     const result = await UsageLogService.deleteLogsByTracker(userId, trackerId);
 
-    console.log('[Delete Logs by Tracker] Result:', {
-      trackerId,
-      usageLogsDeleted: result.usageLogsDeleted,
-      dailyUsageDeleted: result.dailyUsageDeleted,
-      totalDeleted: result.totalDeleted,
-    });
-
     return successResponse(res, result, result.message);
   } catch (error: any) {
-    console.error('Error deleting logs by tracker:', error);
     return errorResponse(res, error, 'Internal server error');
   }
 };
@@ -128,16 +117,8 @@ export const deleteLogsByUserController = async (req: any, res: Response) => {
 
     const result = await UsageLogService.deleteLogsByUser(userId);
 
-    console.log('[Delete All User Logs] Result:', {
-      userId,
-      usageLogsDeleted: result.usageLogsDeleted,
-      dailyUsageDeleted: result.dailyUsageDeleted,
-      totalDeleted: result.totalDeleted,
-    });
-
     return successResponse(res, result, result.message);
   } catch (error: any) {
-    console.error('Error deleting all user logs:', error);
     return errorResponse(res, error, 'Internal server error');
   }
 };

@@ -16,7 +16,6 @@ export const getAllTrackersController = async (req: any, res: Response) => {
 
     return successResponse(res, { trackers }, 'Trackers retrieved successfully');
   } catch (error: any) {
-    console.error('Error fetching trackers:', error);
     return errorResponse(res, error, 'Internal server error');
   }
 };
@@ -51,7 +50,6 @@ export const createTrackerController = async (req: any, res: Response) => {
       'Tracker created successfully'
     );
   } catch (error: any) {
-    console.error('Error creating tracker:', error);
     if (error.message.includes('Missing required fields')) {
       return badRequestResponse(res, null, error.message);
     }
@@ -71,7 +69,6 @@ export const getTrackerByIdController = async (req: any, res: Response) => {
 
     return successResponse(res, { tracker }, 'Tracker retrieved successfully');
   } catch (error: any) {
-    console.error('Error fetching tracker:', error);
     if (error.message === 'Tracker not found') {
       return badRequestResponse(res, null, error.message);
     }
@@ -97,7 +94,6 @@ export const updateTrackerController = async (req: any, res: Response) => {
 
     return successResponse(res, { tracker }, 'Tracker updated successfully');
   } catch (error: any) {
-    console.error('Error updating tracker:', error);
     if (error.message === 'Tracker not found') {
       return badRequestResponse(res, null, error.message);
     }
@@ -117,7 +113,6 @@ export const deleteTrackerController = async (req: any, res: Response) => {
 
     return successResponse(res, result, result.message);
   } catch (error: any) {
-    console.error('Error deleting tracker:', error);
     if (error.message === 'Tracker not found') {
       return badRequestResponse(res, null, error.message);
     }

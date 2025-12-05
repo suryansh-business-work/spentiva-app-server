@@ -1,6 +1,7 @@
 import categoryModels from '../category/category.models';
 import expenseModels from '../expense/expense.models';
 import TrackerModel from './tracker.models';
+import { logger } from '../../utils/logger';
 
 /**
  * Tracker Service - Business logic for tracker operations
@@ -169,9 +170,9 @@ class TrackerService {
           trackerName: tracker.name,
           trackerType: tracker.type,
         });
-        console.log(`✅ Updated tracker ${trackerId} in usage records`);
+        logger.info('Updated tracker in usage records', { trackerId });
       } catch (usageError) {
-        console.error('Error updating tracker in usage:', usageError);
+        logger.error('Error updating tracker in usage', { trackerId, error: usageError });
         // Don't fail the update operation if usage update fails
       }
     }
@@ -201,9 +202,9 @@ class TrackerService {
     try {
       const { markTrackerAsDeleted } = await import('../usage-log/usage-log.services');
       await markTrackerAsDeleted(trackerId);
-      console.log(`✅ Marked tracker ${trackerId} as deleted in usage records`);
+      logger.info('Marked tracker as deleted in usage records', { trackerId });
     } catch (usageError) {
-      console.error('Error marking tracker as deleted in usage:', usageError);
+      logger.error('Error marking tracker as deleted in usage', { trackerId, error: usageError });
       // Don't fail the delete operation if usage marking fails
     }
 

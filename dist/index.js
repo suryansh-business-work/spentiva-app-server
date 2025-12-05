@@ -90,12 +90,10 @@ app.use('/v1/api/auth/verify-email-otp', rate_limit_1.authLimiter);
 app.use('/v1/api/auth', auth_routes_1.default);
 // AI Endpoints (with moderate rate limiting)
 app.use('/v1/api/expense/parse', rate_limit_1.aiLimiter);
-// General API rate limiting for all other routes
-app.use('/v1/api', rate_limit_1.apiLimiter);
-// Resource Routes
+// Resource Routes (BEFORE general rate limiting)
 app.use('/v1/api/category', category_routes_1.default);
 app.use('/v1/api/expense', expense_routes_1.default);
-app.use('/v1/api/trackers', tracker_routes_1.default);
+app.use('/v1/api/tracker', tracker_routes_1.default);
 app.use('/v1/api/usage', usage_routes_1.default);
 app.use('/v1/api/usage-logs', usage_log_routes_1.default);
 // File uploads
@@ -107,6 +105,9 @@ app.use('/v1/api/analytics', analytics_routes_1.default);
 app.use('/v1/api/admin', admin_routes_1.default);
 // Support Tickets
 app.use('/v1/api/support', support_routes_1.default);
+// General API rate limiting (AFTER all specific routes)
+// This will only apply to routes not matched above
+app.use('/v1/api', rate_limit_1.apiLimiter);
 // Global Error Handler (must be after all routes)
 app.use((err, _req, res, _next) => {
     // Handle JSON parse errors

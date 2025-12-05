@@ -2,6 +2,7 @@ import UsageModel from './usage.models';
 import UsageLogService from '../../apis/usage-log/usage-log.services';
 import mongoose from 'mongoose';
 import TrackerModel from '../tracker/tracker.models';
+import { logger } from '../../utils/logger';
 
 /**
  * Usage Service - Business logic for usage tracking and statistics
@@ -13,7 +14,7 @@ export class UsageService {
   static async getOverallUsage(userId: string) {
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    console.log('[Overall Usage] Fetching for user:', userId);
+    logger.info('Fetching overall usage', { userId });
 
     // Get overall statistics
     const overallStats = await UsageModel.aggregate([
@@ -114,7 +115,7 @@ export class UsageService {
   static async getTrackerUsage(userId: string, trackerId: string) {
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    console.log('[Tracker Usage] Fetching for:', { userId, trackerId });
+    logger.info('Fetching tracker usage', { userId, trackerId });
 
     // Get tracker statistics
     const trackerStats = await UsageModel.aggregate([
@@ -225,12 +226,7 @@ export class UsageService {
     limit: number = 100,
     offset: number = 0
   ) {
-    console.log('[Usage Service] Delegating to UsageLogService for tracker logs:', {
-      userId,
-      trackerId,
-      limit,
-      offset,
-    });
+    logger.info('Delegating to UsageLogService for tracker logs', { userId, trackerId, limit, offset });
 
     // Delegate to UsageLogService for proper service layering
     return await UsageLogService.getTrackerLogsPaginated(userId, trackerId, limit, offset);
@@ -244,7 +240,7 @@ export class UsageService {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    console.log('[Overall Graphs] Fetching for user:', userId);
+    logger.info('Fetching overall graphs', { userId });
 
     // Daily usage over last 30 days
     const dailyUsage = await UsageModel.aggregate([
@@ -314,7 +310,7 @@ export class UsageService {
   static async getTrackerGraphs(userId: string, trackerId: string) {
     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    console.log('[Tracker Graphs] Fetching for:', { userId, trackerId });
+    logger.info('Fetching tracker graphs', { userId, trackerId });
 
     // Daily usage for this tracker (last 30 days)
     const thirtyDaysAgo = new Date();

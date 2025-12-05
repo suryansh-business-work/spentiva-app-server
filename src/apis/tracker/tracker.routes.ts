@@ -16,18 +16,18 @@ const router = express.Router();
  */
 
 // Get all trackers for authenticated user
-router.get('/trackers', authenticateMiddleware, getAllTrackersController);
+router.get('/all', authenticateMiddleware, getAllTrackersController);
 
 // Create a new tracker
-router.post('/create/tracker', authenticateMiddleware, createTrackerController);
+router.post('/create', authenticateMiddleware, createTrackerController);
 
 // Get a single tracker by ID
-router.get('/get/tracker/:id', authenticateMiddleware, getTrackerByIdController);
+router.get('/get/:id', authenticateMiddleware, getTrackerByIdController);
 
 // Update a tracker
-router.put('/update/tracker/:id', authenticateMiddleware, updateTrackerController);
+router.put('/update/:id', authenticateMiddleware, updateTrackerController);
 
 // Delete a tracker
-router.delete('/delete/tracker/:id', authenticateMiddleware, deleteTrackerController);
+router.delete('/delete/:id', authenticateMiddleware, deleteTrackerController);
 
 export default router;

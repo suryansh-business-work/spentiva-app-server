@@ -40,6 +40,7 @@ exports.ExpenseParser = void 0;
 const openai_1 = __importDefault(require("openai"));
 const categories_1 = require("../config/categories");
 const env_1 = __importDefault(require("../config/env"));
+const logger_1 = require("../utils/logger");
 const openai = env_1.default.OPENAI_API_KEY ? new openai_1.default({ apiKey: env_1.default.OPENAI_API_KEY }) : null;
 class ExpenseParser {
     static buildSystemPrompt(categories) {
@@ -120,7 +121,7 @@ If you cannot parse the message for other reasons, respond with:
             }
             // Get actual token usage from OpenAI
             const usage = completion.usage;
-            console.log('[ParseExpense] OpenAI Token Usage:', {
+            logger_1.logger.info('OpenAI expense parsing completed', {
                 prompt_tokens: usage?.prompt_tokens,
                 completion_tokens: usage?.completion_tokens,
                 total_tokens: usage?.total_tokens,
@@ -151,7 +152,7 @@ If you cannot parse the message for other reasons, respond with:
             return result;
         }
         catch (error) {
-            console.error('Error parsing expense:', error);
+            logger_1.logger.error('Error parsing expense', { error });
             return { error: 'Failed to parse expense. Please try again.' };
         }
     }
@@ -178,7 +179,7 @@ If you cannot parse the message for other reasons, respond with:
             });
             // Get actual token usage from OpenAI
             const usage = completion.usage;
-            console.log('[ChatResponse] OpenAI Token Usage:', {
+            logger_1.logger.info('OpenAI chat response completed', {
                 prompt_tokens: usage?.prompt_tokens,
                 completion_tokens: usage?.completion_tokens,
                 total_tokens: usage?.total_tokens,
@@ -189,7 +190,7 @@ If you cannot parse the message for other reasons, respond with:
             };
         }
         catch (error) {
-            console.error('Error getting chat response:', error);
+            logger_1.logger.error('Error getting chat response', { error });
             return {
                 response: "Sorry, I'm having trouble responding right now.",
             };

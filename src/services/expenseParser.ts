@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import { EXPENSE_CATEGORIES, PAYMENT_METHODS } from '../config/categories';
 import { ParsedExpense } from '../types';
 import config from '../config/env';
+import { logger } from '../utils/logger';
 
 const openai = config.OPENAI_API_KEY ? new OpenAI({ apiKey: config.OPENAI_API_KEY }) : null;
 
@@ -93,7 +94,7 @@ If you cannot parse the message for other reasons, respond with:
 
       // Get actual token usage from OpenAI
       const usage = completion.usage;
-      console.log('[ParseExpense] OpenAI Token Usage:', {
+      logger.info('OpenAI expense parsing completed', {
         prompt_tokens: usage?.prompt_tokens,
         completion_tokens: usage?.completion_tokens,
         total_tokens: usage?.total_tokens,
@@ -131,7 +132,7 @@ If you cannot parse the message for other reasons, respond with:
 
       return result;
     } catch (error) {
-      console.error('Error parsing expense:', error);
+      logger.error('Error parsing expense', { error });
       return { error: 'Failed to parse expense. Please try again.' };
     }
   }
@@ -166,7 +167,7 @@ If you cannot parse the message for other reasons, respond with:
 
       // Get actual token usage from OpenAI
       const usage = completion.usage;
-      console.log('[ChatResponse] OpenAI Token Usage:', {
+      logger.info('OpenAI chat response completed', {
         prompt_tokens: usage?.prompt_tokens,
         completion_tokens: usage?.completion_tokens,
         total_tokens: usage?.total_tokens,
@@ -178,7 +179,7 @@ If you cannot parse the message for other reasons, respond with:
         usage,
       };
     } catch (error) {
-      console.error('Error getting chat response:', error);
+      logger.error('Error getting chat response', { error });
       return {
         response: "Sorry, I'm having trouble responding right now.",
       };
