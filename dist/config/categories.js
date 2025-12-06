@@ -104,4 +104,5 @@ exports.PAYMENT_METHODS = [
     'UPI',
     'Net Banking',
     'Wallet',
+    'User not provided payment method'
 ];

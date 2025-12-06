@@ -50,38 +50,58 @@ class ExpenseParser {
             return `${cat.name}: ${subcats}`;
         })
             .join('\n');
-        return `You are an expense tracking assistant. Parse user messages about expenses and extract:
-1. Amount (number)
-2. Category (main category from the list)
-3. Subcategory (specific subcategory from the list)
-4. Payment method (from: ${categories_1.PAYMENT_METHODS.join(', ')})
-5. Description (optional)
+        return `You are an expense tracking assistant. Parse user messages about expenses (single or multiple) and extract structured data.
 
 Available categories and subcategories:
 ${categoriesList}
 
+Payment methods: ${categories_1.PAYMENT_METHODS.join(', ')}
+
+CRITICAL RULES:
+1. User can mention ONE or MULTIPLE expenses in a single message
+2. Extract each expense separately with: amount, category, subcategory
+3. PaymentMethod is REQUIRED - if user doesn't mention it, use "User not provided payment method"
+4. Description is OPTIONAL - extract if user provides context
+5. ALWAYS respond with an array of expenses, even for a single expense
+6. Use ONLY categories/subcategories from the provided list
+7. If category/subcategory not found, return error
+
 Examples:
-- "spend food 50 from credit card" → {amount: 50, category: "Food & Dining", subcategory: "Foods", paymentMethod: "Credit Card"}
-- "bought groceries 200 cash" → {amount: 200, category: "Food & Dining", subcategory: "Grocery & Vegetables", paymentMethod: "Cash"}
-- "paid electricity bill 1500 upi" → {amount: 1500, category: "Home & Living", subcategory: "Bills", paymentMethod: "UPI"}
+Input: "spent 50 on lunch"
+Output: [{"amount": 50, "category": "Food & Dining", "subcategory": "Foods", "paymentMethod": "User not provided payment method"}]
 
-Respond ONLY with a JSON object in this exact format:
-{
-  "amount": number,
-  "category": "string",
-  "subcategory": "string",
-  "paymentMethod": "string",
-  "description": "string (optional)"
-}
+Input: "bought groceries 200 and paid electricity bill 1500 via UPI"
+Output: [
+  {"amount": 200, "category": "Food & Dining", "subcategory": "Grocery & Vegetables", "paymentMethod": "User not provided payment method"},
+  {"amount": 1500, "category": "Home & Living", "subcategory": "Bills", "paymentMethod": "UPI"}
+]
 
-If the category or subcategory is NOT in the provided list, respond with:
+Input: "taxi 150 cash, coffee 80 credit card, and movie tickets 500"
+Output: [
+  {"amount": 150, "category": "Transport", "subcategory": "Taxi", "paymentMethod": "Cash"},
+  {"amount": 80, "category": "Food & Dining", "subcategory": "Foods", "paymentMethod": "Credit Card"},
+  {"amount": 500, "category": "Entertainment", "subcategory": "Movies", "paymentMethod": "User not provided payment method", "description": "movie tickets"}
+]
+
+RESPONSE FORMAT (ALWAYS JSON ARRAY):
+[
+  {
+    "amount": number,
+    "category": "string",
+    "subcategory": "string",
+    "paymentMethod": "string (use 'User not provided payment method' if not mentioned)",
+    "description": "string (optional)"
+  }
+]
+
+ERROR FORMAT (if category not found):
 {
   "error": "I was unable to find this category in your category list. Kindly update the categories before logging this item."
 }
 
-If you cannot parse the message for other reasons, respond with:
+ERROR FORMAT (if cannot parse):
 {
-  "error": "Could not understand the expense. Please provide amount, category, and payment method."
+  "error": "Could not understand the expense. Please provide at least amount and category."
 }`;
     }
     static async parseExpense(userMessage, trackerId) {
@@ -98,7 +118,6 @@ If you cannot parse the message for other reasons, respond with:
                 categories = await CategoryService.getAllCategories(trackerId);
             }
             else {
-                // Fallback to default categories if no trackerId (though trackerId should be required)
                 categories = Object.values(categories_1.EXPENSE_CATEGORIES);
             }
             if (!categories || categories.length === 0) {
@@ -113,7 +132,7 @@ If you cannot parse the message for other reasons, respond with:
                     { role: 'user', content: userMessage },
                 ],
                 temperature: 0.3,
-                max_tokens: 200,
+                max_tokens: 500, // Increased for multiple expenses
             });
             const response = completion.choices[0]?.message?.content;
             if (!response) {
@@ -127,29 +146,47 @@ If you cannot parse the message for other reasons, respond with:
                 total_tokens: usage?.total_tokens,
             });
             const parsed = JSON.parse(response);
+            // Check if error response
             if (parsed.error) {
                 return { ...parsed, usage };
             }
-            // Validate the parsed expense
-            if (!parsed.amount || !parsed.category || !parsed.subcategory || !parsed.paymentMethod) {
-                return { error: 'Missing required fields in expense', usage };
+            // Ensure response is an array
+            const expensesArray = Array.isArray(parsed) ? parsed : [parsed];
+            // Validate and enrich each expense
+            const validatedExpenses = [];
+            for (let i = 0; i < expensesArray.length; i++) {
+                const expense = expensesArray[i];
+                // Validate required fields including paymentMethod
+                if (!expense.amount || !expense.category || !expense.subcategory || !expense.paymentMethod) {
+                    return {
+                        error: `Expense at index ${i}: Missing required fields (amount, category, subcategory, paymentMethod)`,
+                        usage,
+                    };
+                }
+                // Find the category ID from the fetched categories
+                const categoryEntry = categories.find(cat => cat.name === expense.category);
+                if (!categoryEntry) {
+                    return {
+                        error: 'I was unable to find this category in your category list. Kindly update the categories before logging this item.',
+                        usage,
+                    };
+                }
+                // Add categoryId and timestamp
+                validatedExpenses.push({
+                    amount: expense.amount,
+                    category: expense.category,
+                    subcategory: expense.subcategory,
+                    categoryId: categoryEntry._id || categoryEntry.id,
+                    paymentMethod: expense.paymentMethod, // Required - defaults to "User not provided payment method"
+                    description: expense.description, // Optional
+                    timestamp: new Date(),
+                });
             }
-            // Find the category ID from the fetched categories
-            const categoryEntry = categories.find(cat => cat.name === parsed.category);
-            if (!categoryEntry) {
-                return {
-                    error: 'I was unable to find this category in your category list. Kindly update the categories before logging this item.',
-                    usage,
-                };
-            }
-            // Add categoryId, timestamp, and token usage
-            const result = {
-                ...parsed,
-                categoryId: categoryEntry._id || categoryEntry.id, // Handle both _id (DB) and id (Config)
-                timestamp: new Date(),
-                usage, // Include actual OpenAI token usage
+            // Return expenses array with usage at the same level
+            return {
+                expenses: validatedExpenses,
+                usage,
             };
-            return result;
         }
         catch (error) {
             logger_1.logger.error('Error parsing expense', { error });

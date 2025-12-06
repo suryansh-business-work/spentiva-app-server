@@ -21,13 +21,8 @@ export interface ParsedExpense {
   category: string;
   subcategory: string;
   categoryId: string;
-  paymentMethod: string;
+  paymentMethod: string; // Required - defaults to "User not provided payment method"
   description?: string;
   timestamp?: Date;
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  };
 }
 

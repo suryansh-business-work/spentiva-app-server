@@ -9,6 +9,7 @@ import TrackerModel from '../tracker/tracker.models';
 
 /**
  * Parse expense from natural language message
+ * Now supports parsing single or multiple expenses from one input
  */
 export const parseExpenseController = async (req: any, res: Response) => {
   try {
@@ -60,19 +61,29 @@ export const parseExpenseController = async (req: any, res: Response) => {
 
     const parsed = await ExpenseService.parseExpense(input, trackerId);
 
+    // Check for errors
+    if ('error' in parsed) {
+      return badRequestResponse(res, parsed, 'Failed to parse expense');
+    }
+
+    // Destructure expenses and usage from the response
+    const { expenses: parsedExpenses, usage } = parsed;
+    const firstExpense = parsedExpenses[0];
+
     // Log AI response with tracker snapshot using ACTUAL OpenAI token counts
-    if (trackerSnapshot && !('error' in parsed) && parsed.usage) {
+    if (trackerSnapshot && usage) {
       try {
         const { logUsage } = await import('../usage-log/usage-log.services');
 
         // Use actual token counts from OpenAI
-        const actualUserTokens = parsed.usage.prompt_tokens || 0;
-        const actualAiTokens = parsed.usage.completion_tokens || 0;
+        const actualUserTokens = usage.prompt_tokens || 0;
+        const actualAiTokens = usage.completion_tokens || 0;
 
         console.log('[Parse Expense] Actual OpenAI Usage:', {
           prompt_tokens: actualUserTokens,
           completion_tokens: actualAiTokens,
-          total_tokens: parsed.usage.total_tokens,
+          total_tokens: usage.total_tokens,
+          expenses_parsed: parsedExpenses.length,
         });
 
         // Update the user message log with actual tokens
@@ -84,7 +95,10 @@ export const parseExpenseController = async (req: any, res: Response) => {
           actualUserTokens
         );
 
-        const responseText = `Parsed expense: ₹${parsed.amount} for ${parsed.subcategory} via ${parsed.paymentMethod}`;
+        // Create response text for logging
+        const responseText = parsedExpenses.length === 1
+          ? `Parsed 1 expense: ₹${firstExpense.amount} for ${firstExpense.subcategory} via ${firstExpense.paymentMethod}`
+          : `Parsed ${parsedExpenses.length} expenses totaling ₹${parsedExpenses.reduce((sum, e) => sum + e.amount, 0)}`;
 
         // Log AI response with actual completion tokens
         await logUsage(
@@ -98,28 +112,14 @@ export const parseExpenseController = async (req: any, res: Response) => {
         console.log('[Parse Expense] Messages logged with actual OpenAI tokens');
       } catch (logError) {
         console.error('[Parse Expense] Error logging with actual tokens:', logError);
-        // Continue processing even if logging fails
-      }
-    } else if (trackerSnapshot && !('error' in parsed)) {
-      // Fallback if usage is not available
-      try {
-        const responseText = `Parsed expense: ₹${parsed.amount} for ${parsed.subcategory} via ${parsed.paymentMethod}`;
-        const { encode } = await import('gpt-tokenizer');
-        const aiTokens = encode(responseText).length;
-
-        const { logUsage } = await import('../usage-log/usage-log.services');
-        await logUsage(req.user.userId, trackerSnapshot, 'assistant', responseText, aiTokens);
-        console.log('[Parse Expense] AI response logged with estimated tokens (fallback)');
-      } catch (logError) {
-        console.error('[Parse Expense] Error logging AI response:', logError);
       }
     }
 
-    if ('error' in parsed) {
-      return badRequestResponse(res, parsed, 'Failed to parse expense');
-    }
-
-    return successResponse(res, parsed, 'Expense parsed successfully');
+    return successResponse(
+      res,
+      { expenses: parsedExpenses, count: parsedExpenses.length, usage },
+      `${parsedExpenses.length} expense${parsedExpenses.length > 1 ? 's' : ''} parsed successfully`
+    );
   } catch (error: any) {
     console.error('Error parsing expense:', error);
     return errorResponse(res, error, 'Internal server error');
@@ -127,55 +127,66 @@ export const parseExpenseController = async (req: any, res: Response) => {
 };
 
 /**
- * Create a new expense
+ * Create expenses (single or multiple)
+ * Always expects an array of expenses
  */
 export const createExpenseController = async (req: any, res: Response) => {
   try {
-    const {
-      amount,
-      category,
-      subcategory,
-      categoryId,
-      paymentMethod,
-      description,
-      timestamp,
-      trackerId,
-    } = req.body;
     const userId = req.user?.userId;
+    const { expenses, trackerId } = req.body;
 
-    const expense = await ExpenseService.createExpense({
-      amount,
-      category,
-      subcategory,
-      categoryId,
-      paymentMethod,
-      description,
-      timestamp,
-      trackerId,
-      userId,
-    });
+    // Validate expenses array exists
+    if (!expenses || !Array.isArray(expenses)) {
+      return badRequestResponse(res, null, 'Expenses must be an array');
+    }
+
+    if (expenses.length === 0) {
+      return badRequestResponse(res, null, 'Expenses array cannot be empty');
+    }
+
+    // Validate that each expense has required fields
+    for (let i = 0; i < expenses.length; i++) {
+      const exp = expenses[i];
+      if (!exp.amount || !exp.category || !exp.subcategory || !exp.categoryId) {
+        return badRequestResponse(
+          res,
+          null,
+          `Expense at index ${i}: Missing required fields (amount, category, subcategory, categoryId)`
+        );
+      }
+    }
+
+    // Create expenses using bulk service
+    const createdExpenses = await ExpenseService.createBulkExpenses(
+      expenses,
+      { trackerId, userId }
+    );
+
+    const formattedExpenses = createdExpenses.map(expense => ({
+      id: expense._id.toString(),
+      amount: expense.amount,
+      category: expense.category,
+      subcategory: expense.subcategory,
+      categoryId: expense.categoryId,
+      paymentMethod: expense.paymentMethod,
+      description: expense.description,
+      timestamp: expense.timestamp,
+      trackerId: expense.trackerId,
+      createdAt: expense.createdAt,
+      updatedAt: expense.updatedAt,
+    }));
 
     return successResponse(
       res,
       {
-        expense: {
-          id: expense._id.toString(),
-          amount: expense.amount,
-          category: expense.category,
-          subcategory: expense.subcategory,
-          categoryId: expense.categoryId,
-          paymentMethod: expense.paymentMethod,
-          description: expense.description,
-          timestamp: expense.timestamp,
-          createdAt: expense.createdAt,
-          updatedAt: expense.updatedAt,
-        },
+        expenses: formattedExpenses,
+        count: formattedExpenses.length,
       },
-      'Expense logged successfully'
+      `${formattedExpenses.length} expense${formattedExpenses.length > 1 ? 's' : ''} created successfully`
     );
   } catch (error: any) {
     console.error('Error creating expense:', error);
-    if (error.message.includes('Missing required fields')) {
+    if (error.message.includes('Missing required fields') || error.message.includes('Expense at index')) {
       return badRequestResponse(res, null, error.message);
     }
     return errorResponse(res, error, 'Internal server error');

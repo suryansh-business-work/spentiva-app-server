@@ -6,7 +6,7 @@ export interface IExpense extends Document {
   category: string;
   subcategory: string;
   categoryId: string;
-  paymentMethod: string;
+  paymentMethod?: string;
   description?: string;
   timestamp: Date;
   userId?: string;
@@ -39,7 +39,7 @@ const ExpenseSchema: Schema = new Schema(
     },
     paymentMethod: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
     },
     description: {

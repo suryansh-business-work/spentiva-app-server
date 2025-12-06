@@ -1,4 +1,5 @@
-import { IsNumber, IsString, IsOptional, IsNotEmpty, IsDateString, Min } from 'class-validator';
+import { IsNumber, IsString, IsOptional, IsNotEmpty, IsDateString, Min, IsArray, ValidateNested, ArrayMinSize } from 'class-validator';
+import { Type } from 'class-transformer';
 
 /**
  * Parse Expense DTO
@@ -34,8 +35,8 @@ export class CreateExpenseDto {
   categoryId!: string;
 
   @IsString()
-  @IsNotEmpty()
-  paymentMethod!: string;
+  @IsOptional()
+  paymentMethod?: string;
 
   @IsString()
   @IsOptional()
@@ -44,6 +45,21 @@ export class CreateExpenseDto {
   @IsDateString()
   @IsOptional()
   timestamp?: string;
+
+  @IsString()
+  @IsOptional()
+  trackerId?: string;
+}
+
+/**
+ * Create Bulk Expenses DTO
+ */
+export class CreateBulkExpensesDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @ArrayMinSize(1)
+  @Type(() => CreateExpenseDto)
+  expenses!: CreateExpenseDto[];
 
   @IsString()
   @IsOptional()

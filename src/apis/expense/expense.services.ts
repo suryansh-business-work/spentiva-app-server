@@ -50,7 +50,7 @@ export class ExpenseService {
     category: string;
     subcategory: string;
     categoryId: string;
-    paymentMethod: string;
+    paymentMethod?: string;
     description?: string;
     timestamp?: Date;
     trackerId?: string;
@@ -68,9 +68,9 @@ export class ExpenseService {
       userId,
     } = data;
 
-    if (!amount || !category || !subcategory || !categoryId || !paymentMethod) {
+    if (!amount || !category || !subcategory || !categoryId) {
       throw new Error(
-        'Missing required fields: amount, category, subcategory, categoryId, paymentMethod'
+        'Missing required fields: amount, category, subcategory, categoryId'
       );
     }
 
@@ -87,6 +87,57 @@ export class ExpenseService {
     });
 
     return expense;
+  }
+
+  /**
+   * Create multiple expenses at once
+   */
+  static async createBulkExpenses(expensesData: Array<{
+    amount: number;
+    category: string;
+    subcategory: string;
+    categoryId: string;
+    paymentMethod?: string;
+    description?: string;
+    timestamp?: Date;
+  }>, commonData: { trackerId?: string; userId?: string }) {
+    const { trackerId, userId } = commonData;
+
+    // Validate each expense before attempting to insert
+    const validatedExpenses = expensesData.map((expense, index) => {
+      const { amount, category, subcategory, categoryId } = expense;
+
+      if (!amount || !category || !subcategory || !categoryId) {
+        throw new Error(
+          `Expense at index ${index}: Missing required fields (amount, category, subcategory, categoryId)`
+        );
+      }
+
+      return {
+        amount,
+        category,
+        subcategory,
+        categoryId,
+        paymentMethod: expense.paymentMethod,
+        description: expense.description,
+        timestamp: expense.timestamp || new Date(),
+        trackerId: trackerId || 'default',
+        userId,
+      };
+    });
+
+    try {
+      // Use insertMany for efficient bulk insertion
+      const createdExpenses = await ExpenseModel.insertMany(validatedExpenses, {
+        ordered: true, // Stop on first error
+        lean: false,
+      });
+
+      return createdExpenses;
+    } catch (error: any) {
+      console.error('Error in bulk expense creation:', error);
+      throw new Error(`Failed to create expenses: ${error.message}`);
+    }
   }
 
   /**
