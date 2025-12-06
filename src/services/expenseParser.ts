@@ -15,25 +15,47 @@ export class ExpenseParser {
       })
       .join('\n');
 
-    return `You are an expense tracking assistant. Parse user messages about expenses (single or multiple) and extract structured data.
+    return `You are an expense tracking assistant. Parse user messages about expenses and extract structured data.
 
-Available categories and subcategories:
+AVAILABLE CATEGORIES AND SUBCATEGORIES:
 ${categoriesList}
 
-Payment methods: ${PAYMENT_METHODS.join(', ')}
+AVAILABLE PAYMENT METHODS:
+${PAYMENT_METHODS.join(', ')}
 
-CRITICAL RULES:
-1. User can mention ONE or MULTIPLE expenses in a single message
-2. Extract each expense separately with: amount, category, subcategory
-3. PaymentMethod is REQUIRED - if user doesn't mention it, use "User not provided payment method"
-4. Description is OPTIONAL - extract if user provides context
-5. ALWAYS respond with an array of expenses, even for a single expense
-6. Use ONLY categories/subcategories from the provided list
-7. If category/subcategory not found, return error
+PARSING RULES:
+1. Extract ALL expenses from the message (can be single or multiple)
+2. For each expense extract: amount, category, subcategory, paymentMethod (optional), description (optional)
+3. ALWAYS return an array of expense objects
 
-Examples:
+CATEGORY MATCHING RULES - VERY IMPORTANT:
+- Try to match user's intent to the AVAILABLE CATEGORIES list above
+- Use the EXACT category name from the available list
+- For example: "food" → "Food & Dining", "transport" → "Transportation", "movie" → "Entertainment"
+- If you CANNOT find a matching category in the available list, use the EXACT word/phrase the user mentioned
+- Example: User says "xyz" and "xyz" is NOT in available categories → use "xyz" as category
+- Example: User says "random stuff" and not in list → use "random stuff" as category
+- DO NOT invent or assume categories
+- DO NOT use placeholders like "User not provided category" or "Unknown"
+
+PAYMENT METHOD RULES:
+- If user mentions a payment method, use it
+- If user does NOT mention payment method, use "User not provided payment method"
+
+SUBCATEGORY RULES:
+- If category is found in available list, pick the most appropriate subcategory
+- If category is NOT found, use the same value as category for subcategory
+
+EXAMPLES:
+
 Input: "spent 50 on lunch"
 Output: [{"amount": 50, "category": "Food & Dining", "subcategory": "Foods", "paymentMethod": "User not provided payment method"}]
+
+Input: "spent 50 on xyz, spent 100 on food using cash"
+Output: [
+  {"amount": 50, "category": "xyz", "subcategory": "xyz", "paymentMethod": "User not provided payment method"},
+  {"amount": 100, "category": "Food & Dining", "subcategory": "Foods", "paymentMethod": "Cash"}
+]
 
 Input: "bought groceries 200 and paid electricity bill 1500 via UPI"
 Output: [
@@ -43,40 +65,40 @@ Output: [
 
 Input: "taxi 150 cash, coffee 80 credit card, and movie tickets 500"
 Output: [
-  {"amount": 150, "category": "Transport", "subcategory": "Taxi", "paymentMethod": "Cash"},
+  {"amount": 150, "category": "Transportation", "subcategory": "Taxi", "paymentMethod": "Cash"},
   {"amount": 80, "category": "Food & Dining", "subcategory": "Foods", "paymentMethod": "Credit Card"},
   {"amount": 500, "category": "Entertainment", "subcategory": "Movies", "paymentMethod": "User not provided payment method", "description": "movie tickets"}
 ]
 
-RESPONSE FORMAT (ALWAYS JSON ARRAY):
+RESPONSE FORMAT (MUST be valid JSON array):
 [
   {
     "amount": number,
-    "category": "string",
+    "category": "string (EXACT from available list OR EXACT from user input)",
     "subcategory": "string",
-    "paymentMethod": "string (use 'User not provided payment method' if not mentioned)",
+    "paymentMethod": "string (default: 'User not provided payment method')",
     "description": "string (optional)"
   }
 ]
 
-ERROR FORMAT (if category not found):
+ERROR FORMAT (only if you cannot parse amount):
 {
-  "error": "I was unable to find this category in your category list. Kindly update the categories before logging this item."
-}
-
-ERROR FORMAT (if cannot parse):
-{
-  "error": "Could not understand the expense. Please provide at least amount and category."
+  "error": "Parsing failed",
+  "message": "Could not understand the expense. Please provide at least amount and category."
 }`;
   }
 
   static async parseExpense(
     userMessage: string,
     trackerId?: string
-  ): Promise<{ expenses: ParsedExpense[]; usage: any } | { error: string; usage?: any }> {
+  ): Promise<
+    | { expenses: ParsedExpense[]; usage: any }
+    | { error: string; message?: string; missingCategories?: string[]; usage?: any }
+  > {
     if (!openai) {
       return {
-        error: 'OpenAI API key not configured. Cannot parse expense.',
+        error: 'Configuration error',
+        message: 'OpenAI API key not configured. Cannot parse expense.',
       };
     }
 
@@ -92,7 +114,8 @@ ERROR FORMAT (if cannot parse):
 
       if (!categories || categories.length === 0) {
         return {
-          error: 'No categories found for this tracker. Please add categories first.',
+          error: 'No categories found',
+          message: 'No categories found for this tracker. Please add categories first.',
         };
       }
 
@@ -131,6 +154,7 @@ ERROR FORMAT (if cannot parse):
 
       // Validate and enrich each expense
       const validatedExpenses: ParsedExpense[] = [];
+      const missingCategories: string[] = [];
 
       for (let i = 0; i < expensesArray.length; i++) {
         const expense = expensesArray[i];
@@ -138,7 +162,8 @@ ERROR FORMAT (if cannot parse):
         // Validate required fields including paymentMethod
         if (!expense.amount || !expense.category || !expense.subcategory || !expense.paymentMethod) {
           return {
-            error: `Expense at index ${i}: Missing required fields (amount, category, subcategory, paymentMethod)`,
+            error: 'Validation error',
+            message: `Expense at index ${i}: Missing required fields (amount, category, subcategory, paymentMethod)`,
             usage,
           };
         }
@@ -147,11 +172,11 @@ ERROR FORMAT (if cannot parse):
         const categoryEntry = categories.find(cat => cat.name === expense.category);
 
         if (!categoryEntry) {
-          return {
-            error:
-              'I was unable to find this category in your category list. Kindly update the categories before logging this item.',
-            usage,
-          };
+          // Collect missing category
+          if (!missingCategories.includes(expense.category)) {
+            missingCategories.push(expense.category);
+          }
+          continue; // Continue to check other expenses
         }
 
         // Add categoryId and timestamp
@@ -166,6 +191,16 @@ ERROR FORMAT (if cannot parse):
         });
       }
 
+      // If there are missing categories, return structured error
+      if (missingCategories.length > 0) {
+        return {
+          error: 'Category not found',
+          message: `Please add these categories first: ${missingCategories.join(', ')}`,
+          missingCategories,
+          usage,
+        };
+      }
+
       // Return expenses array with usage at the same level
       return {
         expenses: validatedExpenses,
@@ -173,7 +208,10 @@ ERROR FORMAT (if cannot parse):
       };
     } catch (error) {
       logger.error('Error parsing expense', { error });
-      return { error: 'Failed to parse expense. Please try again.' };
+      return {
+        error: 'Parsing failed',
+        message: 'Failed to parse expense. Please try again.',
+      };
     }
   }
 
@@ -199,7 +237,8 @@ ERROR FORMAT (if cannot parse):
       ];
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        // model: 'gpt-3.5-turbo',
+        model: 'GPT-4o-mini',
         messages,
         temperature: 0.7,
         max_tokens: 150,

@@ -65,7 +65,6 @@ export class AnalyticsService {
 
     if (queryDto.trackerId) {
       matchQuery.trackerId = queryDto.trackerId;
-      console.log('[Analytics] Filtering by trackerId:', queryDto.trackerId);
     } else {
       console.log('[Analytics] No trackerId provided, returning all trackers');
     }
