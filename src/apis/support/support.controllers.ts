@@ -1,9 +1,5 @@
 import { Response } from 'express';
-import {
-  successResponse,
-  errorResponse,
-  badRequestResponse,
-} from '../../utils/response-object';
+import { successResponse, errorResponse, badRequestResponse } from '../../utils/response-object';
 import supportService from './support.service';
 import { TicketStatus, TicketType } from './support.models';
 
@@ -35,9 +31,8 @@ export const createTicketController = async (req: any, res: Response) => {
     const userDetails = req.user; // Contains name, email from JWT token
 
     // Send confirmation email to user (async, don't wait)
-    const { sendSupportTicketUserEmail, sendSupportTicketAgentEmail } = await import(
-      '../../services/emailService'
-    );
+    const { sendSupportTicketUserEmail, sendSupportTicketAgentEmail } =
+      await import('../../services/emailService');
 
     sendSupportTicketUserEmail(userDetails.email || '', {
       ticketId: ticket.ticketId,

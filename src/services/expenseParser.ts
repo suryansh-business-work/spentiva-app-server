@@ -160,7 +160,12 @@ ERROR FORMAT (only if you cannot parse amount):
         const expense = expensesArray[i];
 
         // Validate required fields including paymentMethod
-        if (!expense.amount || !expense.category || !expense.subcategory || !expense.paymentMethod) {
+        if (
+          !expense.amount ||
+          !expense.category ||
+          !expense.subcategory ||
+          !expense.paymentMethod
+        ) {
           return {
             error: 'Validation error',
             message: `Expense at index ${i}: Missing required fields (amount, category, subcategory, paymentMethod)`,

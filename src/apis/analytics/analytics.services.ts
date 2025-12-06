@@ -58,7 +58,10 @@ export class AnalyticsService {
   /**
    * Build match query from DTO and date range
    */
-  private static buildMatchQuery(queryDto: AnalyticsQueryDto, dateRange: { startDate: Date; endDate: Date }) {
+  private static buildMatchQuery(
+    queryDto: AnalyticsQueryDto,
+    dateRange: { startDate: Date; endDate: Date }
+  ) {
     const matchQuery: any = {
       timestamp: { $gte: dateRange.startDate, $lte: dateRange.endDate },
     };
@@ -210,12 +213,12 @@ export class AnalyticsService {
    * Get total expenses for a period
    */
   static async getTotalExpenses(queryDto: AnalyticsQueryDto) {
-    // For total, we might want all time if no filter is specified, 
+    // For total, we might want all time if no filter is specified,
     // but consistent behavior with other endpoints is safer.
     // If specific behavior is needed for 'total' endpoint, we can adjust.
     // For now, using the same date range logic.
 
-    // Override filter to 'all' if not provided for total? 
+    // Override filter to 'all' if not provided for total?
     // The previous implementation used 0 to now.
     // Let's respect the filter if provided, otherwise default to all time for this specific method if that was the intent.
     // But the previous code: startDate: new Date(0), endDate: new Date()

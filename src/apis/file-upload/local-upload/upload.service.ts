@@ -92,10 +92,7 @@ class UploadService {
    * Get all files for a user
    */
   async getUserFiles(userId: string, limit: number = 50, skip: number = 0): Promise<IFileUpload[]> {
-    return FileUploadModel.find({ userId })
-      .sort({ uploadedAt: -1 })
-      .limit(limit)
-      .skip(skip);
+    return FileUploadModel.find({ userId }).sort({ uploadedAt: -1 }).limit(limit).skip(skip);
   }
 
   /**

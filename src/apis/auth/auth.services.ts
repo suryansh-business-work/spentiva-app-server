@@ -22,8 +22,6 @@ export class AuthService {
     return jwt.sign({ userId, email, role }, config.JWT_SECRET, { expiresIn: '30d' });
   }
 
-
-
   /**
    * Login with email and password
    */
@@ -70,7 +68,12 @@ export class AuthService {
   /**
    * Signup with name, email, password, and optional accountType
    */
-  static async signup(name: string, email: string, password: string, accountType?: 'free' | 'pro' | 'businesspro') {
+  static async signup(
+    name: string,
+    email: string,
+    password: string,
+    accountType?: 'free' | 'pro' | 'businesspro'
+  ) {
     // Check if user exists
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {

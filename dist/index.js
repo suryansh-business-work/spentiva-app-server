@@ -31,6 +31,8 @@ const support_routes_1 = __importDefault(require("./apis/support/support.routes"
 const analytics_routes_1 = __importDefault(require("./apis/analytics/analytics.routes"));
 const admin_routes_1 = __importDefault(require("./apis/admin/admin.routes"));
 const health_routes_1 = __importDefault(require("./apis/health/health.routes"));
+const payment_routes_1 = __importDefault(require("./apis/payment/payment.routes"));
+const refund_routes_1 = __importDefault(require("./apis/refund/refund.routes"));
 const app = (0, express_1.default)();
 const PORT = env_1.default.PORT;
 // Initialize database connection
@@ -108,6 +110,9 @@ app.use('/v1/api/analytics', analytics_routes_1.default);
 app.use('/v1/api/admin', admin_routes_1.default);
 // Support Tickets
 app.use('/v1/api/support', support_routes_1.default);
+// Payment & Refund
+app.use('/v1/api/payment', payment_routes_1.default);
+app.use('/v1/api/refund', refund_routes_1.default);
 // General API rate limiting (AFTER all specific routes)
 // This will only apply to routes not matched above
 app.use('/v1/api', rate_limit_1.apiLimiter);

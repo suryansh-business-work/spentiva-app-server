@@ -142,4 +142,4 @@
  *         description: Unauthorized
  */
 
-export { };
+export {};

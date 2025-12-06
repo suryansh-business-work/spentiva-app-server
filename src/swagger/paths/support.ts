@@ -168,4 +168,4 @@
  *         description: Unauthorized
  */
 
-export { };
+export {};

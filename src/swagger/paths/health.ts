@@ -38,4 +38,4 @@
  *                   example: pong
  */
 
-export { };
+export {};

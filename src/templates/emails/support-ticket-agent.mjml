@@ -40,32 +40,24 @@
           border="2px solid #fca5a5"
         >
           <mj-column>
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Ticket ID
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Ticket ID </mj-text>
             <mj-text font-size="20px" font-weight="700" color="#dc2626" padding-bottom="15px">
               {{ ticketId }}
             </mj-text>
 
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Type
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Type </mj-text>
             <mj-text font-size="16px" font-weight="600" color="#1f2937" padding-bottom="15px">
               {{ ticketType }}
             </mj-text>
 
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Subject
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Subject </mj-text>
             <mj-text font-size="16px" font-weight="600" color="#1f2937" padding-bottom="15px">
               {{ subject }}
             </mj-text>
 
             <mj-divider border-color="#fca5a5" padding="15px 0" />
 
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              User Details
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> User Details </mj-text>
             <mj-text font-size="16px" color="#1f2937" padding-bottom="5px">
               <strong>Name:</strong> {{ userName }}
             </mj-text>
@@ -73,9 +65,7 @@
               <strong>Email:</strong> {{ userEmail }}
             </mj-text>
 
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Description
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Description </mj-text>
             <mj-text
               font-size="15px"
               color="#374151"
@@ -93,16 +83,14 @@
         </mj-text>
 
         <mj-text color="#4b5563" padding-left="10px">
-          • Review the ticket details above<br/>
-          • Respond to the user within 24 hours<br/>
+          • Review the ticket details above<br />
+          • Respond to the user within 24 hours<br />
           • Update ticket status as you work on it
         </mj-text>
 
         <mj-divider border-color="#e5e7eb" padding="30px 0" />
 
-        <mj-text color="#6b7280" font-size="14px">
-          Time Submitted: {{ createdAt }}
-        </mj-text>
+        <mj-text color="#6b7280" font-size="14px"> Time Submitted: {{ createdAt }} </mj-text>
 
         <mj-text color="#dc2626" font-size="14px" padding-top="10px">
           ⏰ Please respond to this ticket as soon as possible to maintain our service quality.

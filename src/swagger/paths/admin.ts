@@ -31,4 +31,4 @@
  *         description: Forbidden - Admin only
  */
 
-export { };
+export {};

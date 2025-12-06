@@ -23,15 +23,11 @@ function printHeader() {
 function startDev() {
   printHeader();
 
-  console.log(
-    `${symbols.info} ${chalk.blue('Mode:')} ${chalk.white.bold('Development')}`
-  );
+  console.log(`${symbols.info} ${chalk.blue('Mode:')} ${chalk.white.bold('Development')}`);
   console.log(
     `${symbols.watch} ${chalk.blue('Watching:')} ${chalk.white.bold('All TypeScript files')}`
   );
-  console.log(
-    `${symbols.server} ${chalk.blue('Auto-restart:')} ${chalk.white.bold('Enabled')}\n`
-  );
+  console.log(`${symbols.server} ${chalk.blue('Auto-restart:')} ${chalk.white.bold('Enabled')}\n`);
 
   console.log(chalk.gray('─'.repeat(60)) + '\n');
 
@@ -41,13 +37,13 @@ function startDev() {
     shell: true,
   });
 
-  nodemon.on('error', (error) => {
+  nodemon.on('error', error => {
     console.error(chalk.red.bold('\n❌ Error starting development server:\n'));
     console.error(error);
     process.exit(1);
   });
 
-  nodemon.on('exit', (code) => {
+  nodemon.on('exit', code => {
     if (code !== 0) {
       console.log(chalk.red.bold(`\n❌ Development server exited with code ${code}\n`));
       process.exit(code);

@@ -191,11 +191,7 @@ export class UsageService {
     ]);
 
     // Get recent messages (from UsageLog service)
-    const messages = await UsageLogService.getRecentMessagesForTracker(
-      userId,
-      trackerId,
-      100
-    );
+    const messages = await UsageLogService.getRecentMessagesForTracker(userId, trackerId, 100);
 
     const stats = trackerStats[0];
     return {
@@ -226,7 +222,12 @@ export class UsageService {
     limit: number = 100,
     offset: number = 0
   ) {
-    logger.info('Delegating to UsageLogService for tracker logs', { userId, trackerId, limit, offset });
+    logger.info('Delegating to UsageLogService for tracker logs', {
+      userId,
+      trackerId,
+      limit,
+      offset,
+    });
 
     // Delegate to UsageLogService for proper service layering
     return await UsageLogService.getTrackerLogsPaginated(userId, trackerId, limit, offset);
@@ -368,12 +369,14 @@ export class UsageService {
       {
         category: 'User Messages',
         count: distribution.userMessages,
-        percentage: totalMessages > 0 ? Math.round((distribution.userMessages / totalMessages) * 100) : 0,
+        percentage:
+          totalMessages > 0 ? Math.round((distribution.userMessages / totalMessages) * 100) : 0,
       },
       {
         category: 'AI Messages',
         count: distribution.aiMessages,
-        percentage: totalMessages > 0 ? Math.round((distribution.aiMessages / totalMessages) * 100) : 0,
+        percentage:
+          totalMessages > 0 ? Math.round((distribution.aiMessages / totalMessages) * 100) : 0,
       },
     ];
 

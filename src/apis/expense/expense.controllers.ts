@@ -87,27 +87,16 @@ export const parseExpenseController = async (req: any, res: Response) => {
         });
 
         // Update the user message log with actual tokens
-        await logUsage(
-          req.user.userId,
-          trackerSnapshot,
-          'user',
-          input,
-          actualUserTokens
-        );
+        await logUsage(req.user.userId, trackerSnapshot, 'user', input, actualUserTokens);
 
         // Create response text for logging
-        const responseText = parsedExpenses.length === 1
-          ? `Parsed 1 expense: ₹${firstExpense.amount} for ${firstExpense.subcategory} via ${firstExpense.paymentMethod}`
-          : `Parsed ${parsedExpenses.length} expenses totaling ₹${parsedExpenses.reduce((sum, e) => sum + e.amount, 0)}`;
+        const responseText =
+          parsedExpenses.length === 1
+            ? `Parsed 1 expense: ₹${firstExpense.amount} for ${firstExpense.subcategory} via ${firstExpense.paymentMethod}`
+            : `Parsed ${parsedExpenses.length} expenses totaling ₹${parsedExpenses.reduce((sum, e) => sum + e.amount, 0)}`;
 
         // Log AI response with actual completion tokens
-        await logUsage(
-          req.user.userId,
-          trackerSnapshot,
-          'assistant',
-          responseText,
-          actualAiTokens
-        );
+        await logUsage(req.user.userId, trackerSnapshot, 'assistant', responseText, actualAiTokens);
 
         console.log('[Parse Expense] Messages logged with actual OpenAI tokens');
       } catch (logError) {
@@ -157,10 +146,10 @@ export const createExpenseController = async (req: any, res: Response) => {
     }
 
     // Create expenses using bulk service
-    const createdExpenses = await ExpenseService.createBulkExpenses(
-      expenses,
-      { trackerId, userId }
-    );
+    const createdExpenses = await ExpenseService.createBulkExpenses(expenses, {
+      trackerId,
+      userId,
+    });
 
     const formattedExpenses = createdExpenses.map(expense => ({
       id: expense._id.toString(),
@@ -186,7 +175,10 @@ export const createExpenseController = async (req: any, res: Response) => {
     );
   } catch (error: any) {
     console.error('Error creating expense:', error);
-    if (error.message.includes('Missing required fields') || error.message.includes('Expense at index')) {
+    if (
+      error.message.includes('Missing required fields') ||
+      error.message.includes('Expense at index')
+    ) {
       return badRequestResponse(res, null, error.message);
     }
     return errorResponse(res, error, 'Internal server error');
@@ -375,13 +367,7 @@ export const chatController = async (req: any, res: Response) => {
         });
 
         // Update user message log with actual prompt tokens
-        await logUsage(
-          req.user.userId,
-          trackerSnapshot,
-          'user',
-          message,
-          actualUserTokens
-        );
+        await logUsage(req.user.userId, trackerSnapshot, 'user', message, actualUserTokens);
 
         // Log AI response with actual completion tokens
         await logUsage(

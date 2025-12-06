@@ -93,4 +93,3 @@ export const aiLimiter = rateLimit({
     return badRequestResponse(res, null, 'Too many AI requests, please slow down');
   },
 });
-

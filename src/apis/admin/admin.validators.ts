@@ -1,12 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-  IsEnum,
-  IsDateString,
-  IsInt,
-  Min,
-  IsBoolean,
-} from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsDateString, IsInt, Min, IsBoolean } from 'class-validator';
 
 /**
  * DTO for getting user statistics with filters

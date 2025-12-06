@@ -69,9 +69,7 @@ export class ExpenseService {
     } = data;
 
     if (!amount || !category || !subcategory || !categoryId) {
-      throw new Error(
-        'Missing required fields: amount, category, subcategory, categoryId'
-      );
+      throw new Error('Missing required fields: amount, category, subcategory, categoryId');
     }
 
     const expense = await ExpenseModel.create({
@@ -92,15 +90,18 @@ export class ExpenseService {
   /**
    * Create multiple expenses at once
    */
-  static async createBulkExpenses(expensesData: Array<{
-    amount: number;
-    category: string;
-    subcategory: string;
-    categoryId: string;
-    paymentMethod?: string;
-    description?: string;
-    timestamp?: Date;
-  }>, commonData: { trackerId?: string; userId?: string }) {
+  static async createBulkExpenses(
+    expensesData: Array<{
+      amount: number;
+      category: string;
+      subcategory: string;
+      categoryId: string;
+      paymentMethod?: string;
+      description?: string;
+      timestamp?: Date;
+    }>,
+    commonData: { trackerId?: string; userId?: string }
+  ) {
     const { trackerId, userId } = commonData;
 
     // Validate each expense before attempting to insert

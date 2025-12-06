@@ -25,4 +25,3 @@ export interface ParsedExpense {
   description?: string;
   timestamp?: Date;
 }
-

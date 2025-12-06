@@ -14,4 +14,4 @@
  *         description: Unauthorized
  */
 
-export { };
+export {};

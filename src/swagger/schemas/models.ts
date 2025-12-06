@@ -283,4 +283,4 @@
  *               type: string
  */
 
-export { };
+export {};

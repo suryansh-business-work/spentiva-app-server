@@ -1,9 +1,5 @@
 import { Response } from 'express';
-import {
-  successResponse,
-  errorResponse,
-  badRequestResponse,
-} from '../../../utils/response-object';
+import { successResponse, errorResponse, badRequestResponse } from '../../../utils/response-object';
 import uploadService from './upload.service';
 
 /**

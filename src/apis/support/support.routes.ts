@@ -73,6 +73,11 @@ router.post('/tickets/:ticketId/updates', authenticateMiddleware, addUpdateContr
  * @desc    Delete ticket (admin only)
  * @access  Admin
  */
-router.delete('/tickets/:ticketId', authenticateMiddleware, requireAdminMiddleware, deleteTicketController);
+router.delete(
+  '/tickets/:ticketId',
+  authenticateMiddleware,
+  requireAdminMiddleware,
+  deleteTicketController
+);
 
 export default router;

@@ -2,7 +2,11 @@ import { Response } from 'express';
 import UsageLogService from './usage-log.services';
 import { successResponse, errorResponse, badRequestResponse } from '../../utils/response-object';
 import { plainToInstance } from 'class-transformer';
-import { GetUsageLogsQueryDto, CreateUsageLogDto, DeleteOldLogsQueryDto } from './usage-log.validators';
+import {
+  GetUsageLogsQueryDto,
+  CreateUsageLogDto,
+  DeleteOldLogsQueryDto,
+} from './usage-log.validators';
 
 /**
  * UsageLog Controllers - Request handlers using response-object.ts

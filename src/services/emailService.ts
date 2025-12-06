@@ -235,17 +235,15 @@ export const sendSupportTicketUserEmail = async (
 /**
  * Send support ticket notification email to agent/support team
  */
-export const sendSupportTicketAgentEmail = async (
-  ticketDetails: {
-    ticketId: string;
-    userName: string;
-    userEmail: string;
-    type: string;
-    subject: string;
-    description: string;
-    createdAt: string;
-  }
-): Promise<void> => {
+export const sendSupportTicketAgentEmail = async (ticketDetails: {
+  ticketId: string;
+  userName: string;
+  userEmail: string;
+  type: string;
+  subject: string;
+  description: string;
+  createdAt: string;
+}): Promise<void> => {
   const templatePath = path.join(__dirname, '../templates/emails/support-ticket-agent.mjml');
   const html = compileMjmlTemplate(templatePath, {
     ticketId: ticketDetails.ticketId,

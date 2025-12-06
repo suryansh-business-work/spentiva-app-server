@@ -88,13 +88,12 @@ async function build() {
 
   // Step 3: Copy templates
   printStep('3/3', `${symbols.copy} Copying template files...`);
-  const copySuccess = executeCommand(
-    'copyfiles -u 1 src/templates/**/* dist/',
-    'Template Copy'
-  );
+  const copySuccess = executeCommand('copyfiles -u 1 src/templates/**/* dist/', 'Template Copy');
 
   if (!copySuccess) {
-    console.log(chalk.yellow.bold('\n⚠ Warning: Template files may not have been copied correctly\n'));
+    console.log(
+      chalk.yellow.bold('\n⚠ Warning: Template files may not have been copied correctly\n')
+    );
   }
 
   // Build summary
@@ -107,12 +106,14 @@ async function build() {
   console.log(chalk.gray(`  Output directory: ${chalk.white.bold('./dist')}`));
   console.log(chalk.gray(`  Completed at: ${chalk.white.bold(new Date().toLocaleTimeString())}\n`));
 
-  console.log(chalk.cyan.bold(`  ${symbols.rocket} Ready to start the server with: `) +
-    chalk.white.bold('npm start\n'));
+  console.log(
+    chalk.cyan.bold(`  ${symbols.rocket} Ready to start the server with: `) +
+      chalk.white.bold('npm start\n')
+  );
 }
 
 // Run build
-build().catch((error) => {
+build().catch(error => {
   console.error(chalk.red.bold('\n❌ Unexpected error during build:\n'));
   console.error(error);
   process.exit(1);

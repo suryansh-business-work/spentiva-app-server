@@ -94,4 +94,4 @@
  *         description: Unauthorized
  */
 
-export { };
+export {};

@@ -66,11 +66,7 @@ export const createCategoryController = async (req: any, res: Response) => {
 
     const responseDto = new CategoryResponseDto(category);
 
-    return successResponse(
-      res,
-      { category: responseDto },
-      'Category created successfully'
-    );
+    return successResponse(res, { category: responseDto }, 'Category created successfully');
   } catch (error: any) {
     console.error('Error creating category:', error);
     return errorResponse(res, error, 'Internal server error');

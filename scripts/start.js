@@ -31,30 +31,22 @@ function startProduction() {
   const entryPoint = join(distPath, 'index.js');
 
   if (!existsSync(distPath)) {
-    console.log(
-      `${symbols.error} ${chalk.red.bold('Build not found!')}\n`
-    );
+    console.log(`${symbols.error} ${chalk.red.bold('Build not found!')}\n`);
     console.log(chalk.yellow('  Please run the build first:'));
     console.log(chalk.white.bold('  npm run build\n'));
     process.exit(1);
   }
 
   if (!existsSync(entryPoint)) {
-    console.log(
-      `${symbols.warning} ${chalk.yellow.bold('Entry point not found!')}\n`
-    );
+    console.log(`${symbols.warning} ${chalk.yellow.bold('Entry point not found!')}\n`);
     console.log(chalk.yellow('  Expected file: ') + chalk.white.bold('dist/index.js'));
     console.log(chalk.yellow('  Please run the build first:'));
     console.log(chalk.white.bold('  npm run build\n'));
     process.exit(1);
   }
 
-  console.log(
-    `${symbols.success} ${chalk.green('Build found')}`
-  );
-  console.log(
-    `${symbols.server} ${chalk.blue('Mode:')} ${chalk.white.bold('Production')}\n`
-  );
+  console.log(`${symbols.success} ${chalk.green('Build found')}`);
+  console.log(`${symbols.server} ${chalk.blue('Mode:')} ${chalk.white.bold('Production')}\n`);
 
   console.log(chalk.gray('─'.repeat(60)) + '\n');
 
@@ -64,13 +56,13 @@ function startProduction() {
     shell: true,
   });
 
-  server.on('error', (error) => {
+  server.on('error', error => {
     console.error(chalk.red.bold('\n❌ Error starting production server:\n'));
     console.error(error);
     process.exit(1);
   });
 
-  server.on('exit', (code) => {
+  server.on('exit', code => {
     if (code !== 0) {
       console.log(chalk.red.bold(`\n❌ Server exited with code ${code}\n`));
       process.exit(code);

@@ -176,13 +176,14 @@ If you try to start without building first:
 
 These scripts run without the enhanced console output:
 
-| Script                 | Command                       |
-| ---------------------- | ----------------------------- |
-| `npm run dev:simple`   | `nodemon src/index.ts`        |
+| Script                 | Command                         |
+| ---------------------- | ------------------------------- |
+| `npm run dev:simple`   | `nodemon src/index.ts`          |
 | `npm run build:simple` | `tsc && npm run copy-templates` |
-| `npm run start:simple` | `node dist/index.js`          |
+| `npm run start:simple` | `node dist/index.js`            |
 
 Use these if you:
+
 - Need plain output for CI/CD logs
 - Are debugging script issues
 - Prefer simpler, faster output
@@ -197,18 +198,18 @@ Edit the script files in `scripts/` and modify the chalk colors:
 
 ```javascript
 // Available chalk colors
-chalk.red()      // Red text
-chalk.green()    // Green text
-chalk.blue()     // Blue text
-chalk.yellow()   // Yellow text
-chalk.cyan()     // Cyan text
-chalk.magenta()  // Magenta text
-chalk.white()    // White text
-chalk.gray()     // Gray text
+chalk.red(); // Red text
+chalk.green(); // Green text
+chalk.blue(); // Blue text
+chalk.yellow(); // Yellow text
+chalk.cyan(); // Cyan text
+chalk.magenta(); // Magenta text
+chalk.white(); // White text
+chalk.gray(); // Gray text
 
 // Modifiers
-chalk.bold()     // Bold text
-chalk.dim()      // Dim text
+chalk.bold(); // Bold text
+chalk.dim(); // Dim text
 ```
 
 ### Adding More Build Steps
@@ -237,6 +238,7 @@ Error: Cannot find module 'chalk'
 ```
 
 **Solution:** Install chalk:
+
 ```bash
 npm install chalk
 ```
@@ -277,6 +279,7 @@ The scripts use cross-platform paths and should work on Windows without modifica
 ### Performance
 
 The enhanced scripts add minimal overhead:
+
 - ~50ms startup time
 - ~10ms per step for console formatting
 - Total impact: <100ms for typical builds

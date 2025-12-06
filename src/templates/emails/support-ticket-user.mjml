@@ -28,12 +28,11 @@
           Your Ticket Has Been Created! ✅
         </mj-text>
 
-        <mj-text color="#4b5563">
-          Hi {{ userName }},
-        </mj-text>
+        <mj-text color="#4b5563"> Hi {{ userName }}, </mj-text>
 
         <mj-text color="#4b5563">
-          Thank you for contacting Spentiva Support. We have received your support request and our team will review it shortly.
+          Thank you for contacting Spentiva Support. We have received your support request and our
+          team will review it shortly.
         </mj-text>
 
         <!-- Ticket Details Box -->
@@ -44,33 +43,23 @@
           border="1px solid #e0e7ff"
         >
           <mj-column>
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Ticket ID
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Ticket ID </mj-text>
             <mj-text font-size="20px" font-weight="700" color="#6366f1" padding-bottom="15px">
               {{ ticketId }}
             </mj-text>
 
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Type
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Type </mj-text>
             <mj-text font-size="16px" font-weight="600" color="#1f2937" padding-bottom="15px">
               {{ ticketType }}
             </mj-text>
 
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Subject
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Subject </mj-text>
             <mj-text font-size="16px" font-weight="600" color="#1f2937" padding-bottom="15px">
               {{ subject }}
             </mj-text>
 
-            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px">
-              Status
-            </mj-text>
-            <mj-text font-size="16px" font-weight="600" color="#10b981">
-              Open
-            </mj-text>
+            <mj-text font-size="14px" color="#6b7280" padding-bottom="5px"> Status </mj-text>
+            <mj-text font-size="16px" font-weight="600" color="#10b981"> Open </mj-text>
           </mj-column>
         </mj-section>
 
@@ -79,8 +68,8 @@
         </mj-text>
 
         <mj-text color="#4b5563" padding-left="10px">
-          • Our support team will review your request<br/>
-          • You'll receive updates via email<br/>
+          • Our support team will review your request<br />
+          • You'll receive updates via email<br />
           • We typically respond within 24 hours
         </mj-text>
 

@@ -108,5 +108,5 @@ export const PAYMENT_METHODS = [
   'UPI',
   'Net Banking',
   'Wallet',
-  'User not provided payment method'
+  'User not provided payment method',
 ];

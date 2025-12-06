@@ -77,4 +77,4 @@
  *           example: 200
  */
 
-export { };
+export {};

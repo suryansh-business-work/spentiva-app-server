@@ -116,10 +116,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
     },
     security: [],
   },
-  apis: [
-    './src/swagger/paths/*.ts',
-    './src/swagger/schemas/*.ts',
-  ],
+  apis: ['./src/swagger/paths/*.ts', './src/swagger/schemas/*.ts'],
 };
 
 export default swaggerJsdoc(options);

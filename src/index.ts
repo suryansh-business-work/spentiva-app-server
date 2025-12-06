@@ -29,6 +29,8 @@ import supportRoutes from './apis/support/support.routes';
 import analyticsRoutes from './apis/analytics/analytics.routes';
 import adminRoutes from './apis/admin/admin.routes';
 import healthRoutes from './apis/health/health.routes';
+import paymentRoutes from './apis/payment/payment.routes';
+import refundRoutes from './apis/refund/refund.routes';
 
 const app = express();
 const PORT = config.PORT;
@@ -38,10 +40,12 @@ db(config.DBURL);
 
 // === Security Middleware ===
 // Helmet - Security headers
-app.use(helmet({
-  contentSecurityPolicy: false, // Disable for Swagger UI
-  crossOriginEmbedderPolicy: false,
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Disable for Swagger UI
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 // CORS Configuration
 const allowedOrigins = ['https://app.spentiva.com', 'http://localhost:8001'];
@@ -135,6 +139,10 @@ app.use('/v1/api/admin', adminRoutes);
 
 // Support Tickets
 app.use('/v1/api/support', supportRoutes);
+
+// Payment & Refund
+app.use('/v1/api/payment', paymentRoutes);
+app.use('/v1/api/refund', refundRoutes);
 
 // General API rate limiting (AFTER all specific routes)
 // This will only apply to routes not matched above
